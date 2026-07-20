@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DBR 비즈니스 타로 · 7월 1주 차</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Song+Myung&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="dbr_taro.css">
+<script src="data.js"></script>
+</head>
+<body>
+<div class="stars"></div>
+
+<header>
+  <div class="eyebrow">DBR BUSINESS TAROT</div>
+  <div class="moon-divider">
+    <span class="line"></span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3a9 9 0 1 0 8.9 10.4A7 7 0 0 1 12 3z"/></svg>
+    <span class="line right"></span>
+  </div>
+  <h1 id="siteTitle"></h1>
+  <p class="lede" id="siteLede1"></p>
+  <p class="lede" id="siteLede2"></p>
+  <div class="instruction">
+    ✦ 카드를 클릭하면 뒤집힙니다 ✦
+    <span class="sub" id="siteInstructionSub"></span>
+  </div>
+</header>
+
+<main>
+  <div class="deck">
+
+    <!-- CARD 1 -->
+    <div class="card-wrap">
+      <div class="card" data-id="1" tabindex="0" role="button" aria-pressed="false" aria-label="첫 번째 카드: 삐딱한 인재. 클릭하면 뒤집혀 내용이 공개됩니다.">
+        <div class="face face-front">
+          <span class="corner tl"></span><span class="corner tr"></span>
+          <span class="corner bl"></span><span class="corner br"></span>
+          <svg class="sigil" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M50 8 L58 24 L46 24 Z" stroke-linejoin="round"/>
+            <path d="M30 26 L50 20 L70 26" stroke-linecap="round"/>
+            <path d="M35 45 L55 60 L40 78 L65 100 L48 125" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 45 L35 45" stroke-linecap="round" stroke-dasharray="2 6"/>
+            <path d="M80 100 L65 100" stroke-linecap="round" stroke-dasharray="2 6"/>
+          </svg>
+          <span class="tap-hint">TAP TO REVEAL</span>
+        </div>
+        <div class="face face-back">
+          <div class="card-numeral">I</div>
+          <div class="card-cat">인사 · 조직</div>
+          <svg class="card-icon-sm" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M50 8 L58 24 L46 24 Z" stroke-linejoin="round"/>
+            <path d="M30 26 L50 20 L70 26" stroke-linecap="round"/>
+            <path d="M35 45 L55 60 L40 78 L65 100 L48 125" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="card-title">삐딱한 인재</div>
+          <p class="hook">
+            💡 주어진 일을 남들보다 빨리, 성실하게<br>처리하는 데만 집중하고 계시나요?<br><br>
+            AI가 시키는 일을 더 잘하는 시대, ‘없는 문제’를 새롭게<br> 
+            찾아내는 삐딱한 텐션이 당신의 무기가 됩니다.
+          </p>
+          <div class="body-text">
+            주어진 일을 남들보다 조금 더 빠르고 성실하게 처리하는 것만으로
+            스스로를 충분히 유능하고 대체 불가능한 인재라고 믿고 계시나요?<br><br>
+            과거엔 성실함이 무기였지만, 잠도 자지 않고 완벽하게 최적화된
+            전략을 쏟아내는 AI 앞에서는 오히려 가장 취약한 능력이 될 수 있습니다.<br><br>
+            지금 조직에 가장 필요한 사람은 정해진 관습과 흐름에 제동을 걸고
+            ‘없는 문제’를 새롭게 발견하고 정의하는 삐딱하고 창의적인 인재입니다.<br><br>
+            안정된 관성에 기대지 말고, 집요한 호기심으로 백지 위에 새로운
+            질문을 던지며 AI 시대에도 흔들림 없는 나만의 서사를 완성해 보세요.
+          </div>
+          <a class="dbr-link" href="https://dbr.donga.com/article/view/1201/article_no/12146" target="_blank" rel="noopener noreferrer">DBR 아티클 읽기 →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 2 -->
+    <div class="card-wrap">
+      <div class="card" data-id="2" tabindex="0" role="button" aria-pressed="false" aria-label="두 번째 카드: 책임 경영 리더십. 클릭하면 뒤집혀 내용이 공개됩니다.">
+        <div class="face face-front">
+          <span class="corner tl"></span><span class="corner tr"></span>
+          <span class="corner bl"></span><span class="corner br"></span>
+          <svg class="sigil" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M50 15 L82 28 L82 62 C82 92 66 112 50 122 C34 112 18 92 18 62 L18 28 Z" stroke-linejoin="round"/>
+            <path d="M50 55 C44 45 28 47 28 62 C28 75 50 92 50 92 C50 92 72 75 72 62 C72 47 56 45 50 55 Z" stroke-linejoin="round"/>
+          </svg>
+          <span class="tap-hint">TAP TO REVEAL</span>
+        </div>
+        <div class="face face-back">
+          <div class="card-numeral">II</div>
+          <div class="card-cat">리더십</div>
+          <svg class="card-icon-sm" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M50 15 L82 28 L82 62 C82 92 66 112 50 122 C34 112 18 92 18 62 L18 28 Z" stroke-linejoin="round"/>
+            <path d="M50 55 C44 45 28 47 28 62 C28 75 50 92 50 92 C50 92 72 75 72 62 C72 47 56 45 50 55 Z" stroke-linejoin="round"/>
+          </svg>
+          <div class="card-title">책임 경영 리더십</div>
+          <p class="hook">
+            🤝 성과 압박에 쫓겨 겉보기에 화려한<br>무리수를 두고 있진 않나요?<br><br>
+            진심으로 타인을 배려하며 결과에 온전히 책임지는<br>
+            ‘친화적 리더’가 위기 속에서 진짜 신뢰를 얻습니다.
+          </p>
+          <div class="body-text">
+            하반기 실적 압박에 쫓기거나 자신의 권력과 자리를 지키기 위해
+            회사의 핵심 역량과 무관한 무리한 사업 확장을 시도하고 있진 않나요?<br><br>
+            경영학의 새로운 연구에 따르면 타인의 이익을 배려하는 친화성과
+            도덕적 의무감이 높은 성실한 리더일수록 이런 이기적인 행동을 자제합니다.<br><br>
+            이들은 단기적인 성과나 변명으로 자신의 연봉을 방어하기보다는
+            기꺼이 희생을 감수하고 결과에 온전히 책임지는 단단한 태도를 보입니다.<br><br>
+            위기의 순간, 겉보기에 화려한 전략보다 내면의 진정성과 책임감으로
+            하반기 조직을 든든하게 이끌어갈 진짜 리더의 품격을 증명해 보세요.
+          </div>
+          <a class="dbr-link" href="https://dbr.donga.com/article/view/1306/article_no/12155" target="_blank" rel="noopener noreferrer">DBR 아티클 읽기 →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 3 -->
+    <div class="card-wrap">
+      <div class="card" data-id="3" tabindex="0" role="button" aria-pressed="false" aria-label="세 번째 카드: 곡괭이와 삽. 클릭하면 뒤집혀 내용이 공개됩니다.">
+        <div class="face face-front">
+          <span class="corner tl"></span><span class="corner tr"></span>
+          <span class="corner bl"></span><span class="corner br"></span>
+          <svg class="sigil" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M25 30 L75 100" stroke-linecap="round"/>
+            <path d="M25 30 C20 22 22 14 30 12 C38 10 44 18 40 26 L34 36" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M75 30 L25 100" stroke-linecap="round"/>
+            <path d="M75 30 L64 22 L70 12 L82 18 Z" stroke-linejoin="round"/>
+            <circle cx="50" cy="70" r="7" />
+          </svg>
+          <span class="tap-hint">TAP TO REVEAL</span>
+        </div>
+        <div class="face face-back">
+          <div class="card-numeral">III</div>
+          <div class="card-cat">AI · DT</div>
+          <svg class="card-icon-sm" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M25 30 L75 100" stroke-linecap="round"/>
+            <path d="M75 30 L25 100" stroke-linecap="round"/>
+            <circle cx="50" cy="70" r="6" />
+          </svg>
+          <div class="card-title">곡괭이와 삽</div>
+          <p class="hook">
+            ⛏️ 화려한 신기술 완제품 경쟁에만 눈이 팔려 있진 않나요?<br><br>
+            골드러시의 진짜 승자는<br> 
+            금을 캐러 간 사람이 아니라 도구를 판 사람입니다.
+          </p>
+          <div class="body-text">
+            세상을 뒤흔들 화려한 로봇과 신기술 완제품 경쟁에만 시선을 뺏겨
+            당장 우리 조직이 수익을 낼 수 있는 진짜 기회를 놓치고 있진 않나요?<br><br>
+            19세기 캘리포니아 골드러시의 진짜 승자는 금맥을 좇았던 광부가 아니라
+            그들의 작업복인 청바지와 채굴 도구를 팔았던 철저한 비즈니스맨이었습니다.<br><br>
+            지금의 피지컬 AI 시대에도 화려한 로봇의 외형과 완제품에 집착하기보다
+            이 생태계를 뒷받침할 핵심 부품과 인프라에서 수익의 기회를 찾아야 합니다.<br><br>
+            크고 막연한 한탕을 노리기보다, 더 작고 더 싸게 제품을 다듬어 온
+            우리만의 단단한 기술력으로 하반기 시장에 확실한 돌파구를 뚫어보세요.
+          </div>
+          <a class="dbr-link" href="https://dbr.donga.com/article/view/1904/article_no/12134" target="_blank" rel="noopener noreferrer">DBR 아티클 읽기 →</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  ✦ DBR 비즈니스 타로 · 카드를 뒤집어 하반기 인사이트를 확인하세요 ✦
+</footer>
+
+<input type="text" id="adminTrigger" autocomplete="off" tabindex="-1" aria-hidden="true">
+
+<script>
+  // 관리자 페이지(admin.html)에서 저장한 문구를 읽어와 상단 타이틀 영역에 반영합니다.
+  function plainTextToHtml(text){
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML.replace(/\n/g, '<br>');
+  }
+
+  function renderSiteContent(){
+    const site = tarotGetSite();
+    document.getElementById('siteTitle').innerHTML = plainTextToHtml(site.title);
+    document.getElementById('siteLede1').innerHTML = plainTextToHtml(site.lede1);
+    document.getElementById('siteLede2').innerHTML = plainTextToHtml(site.lede2);
+    document.getElementById('siteInstructionSub').textContent = site.instructionSub;
+  }
+  renderSiteContent();
+
+  // 관리자 페이지(admin.html)에서 저장한 내용을 읽어와 카드에 반영합니다.
+  function renderCardContent(){
+    const cards = tarotGetCards();
+    cards.forEach((card) => {
+      const cardEl = document.querySelector('.card[data-id="' + card.id + '"]');
+      if (!cardEl) return;
+
+      cardEl.setAttribute('aria-label', card.title + '. 클릭하면 뒤집혀 내용이 공개됩니다.');
+
+      const front = cardEl.querySelector('.face-front');
+      const sigilSvg = front.querySelector('svg.sigil');
+      let sigilImg = front.querySelector('img.sigil-img');
+      if (card.frontImage) {
+        if (!sigilImg) {
+          sigilImg = document.createElement('img');
+          sigilImg.className = 'sigil-img';
+          front.insertBefore(sigilImg, sigilSvg);
+        }
+        sigilImg.src = card.frontImage;
+        sigilImg.style.display = '';
+        sigilSvg.style.display = 'none';
+      } else {
+        if (sigilImg) sigilImg.style.display = 'none';
+        sigilSvg.style.display = '';
+      }
+
+      const back = cardEl.querySelector('.face-back');
+      back.style.background = 'linear-gradient(165deg, ' + card.color + ', #150c26 65%)';
+      back.querySelector('.card-numeral').textContent = card.numeral;
+      back.querySelector('.card-cat').textContent = card.category;
+      back.querySelector('.card-title').textContent = card.title;
+      back.querySelector('.hook').innerHTML = card.hook;
+      back.querySelector('.body-text').innerHTML = card.body;
+      back.querySelector('.dbr-link').href = card.dbrLink;
+
+      const iconSvg = back.querySelector('svg.card-icon-sm');
+      let iconImg = back.querySelector('img.card-icon-img');
+      if (card.backImage) {
+        if (!iconImg) {
+          iconImg = document.createElement('img');
+          iconImg.className = 'card-icon-img';
+          iconSvg.parentNode.insertBefore(iconImg, iconSvg);
+        }
+        iconImg.src = card.backImage;
+        iconImg.style.display = '';
+        iconSvg.style.display = 'none';
+      } else {
+        if (iconImg) iconImg.style.display = 'none';
+        iconSvg.style.display = '';
+      }
+    });
+  }
+  renderCardContent();
+
+  // 카드를 클릭하면 화면 중앙으로 날아가 커지면서 스핀하며 뒷면을 공개합니다.
+  const deck = document.querySelector('.deck');
+  const cardWraps = Array.from(document.querySelectorAll('.card-wrap'));
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'stage-backdrop';
+  document.body.appendChild(backdrop);
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'stage-close';
+  closeBtn.type = 'button';
+  closeBtn.setAttribute('aria-label', '카드 닫기');
+  closeBtn.textContent = '✕';
+  document.body.appendChild(closeBtn);
+
+  let stageCard = null;
+  let sourceWrap = null;
+  let closeTimer = null;
+
+  function landingRect(){
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const width = Math.min(vw * 0.86, 380);
+    const height = Math.min(vh * 0.78, 620);
+    return {
+      width, height,
+      left: (vw - width) / 2,
+      top: (vh - height) / 2,
+    };
+  }
+
+  function drawCard(wrap){
+    if (stageCard) return;
+
+    const rect = wrap.getBoundingClientRect();
+
+    deck.classList.add('deck-dim');
+    wrap.classList.add('is-picked');
+    sourceWrap = wrap;
+
+    const clone = wrap.cloneNode(true);
+    clone.className = 'stage-card';
+    clone.style.top = rect.top + 'px';
+    clone.style.left = rect.left + 'px';
+    clone.style.width = rect.width + 'px';
+    clone.style.height = rect.height + 'px';
+    document.body.appendChild(clone);
+    stageCard = clone;
+
+    const cloneCard = clone.querySelector('.card');
+    cloneCard.classList.remove('flipped', 'stage-flip');
+    cloneCard.removeAttribute('tabindex');
+
+    requestAnimationFrame(() => {
+      backdrop.classList.add('active');
+      closeBtn.classList.add('active');
+
+      const target = landingRect();
+      clone.style.top = target.top + 'px';
+      clone.style.left = target.left + 'px';
+      clone.style.width = target.width + 'px';
+      clone.style.height = target.height + 'px';
+
+      requestAnimationFrame(() => {
+        cloneCard.classList.add('stage-flip');
+      });
+    });
+  }
+
+  function closeStage(){
+    if (!stageCard) return;
+
+    const clone = stageCard;
+    const cloneCard = clone.querySelector('.card');
+    const wrap = sourceWrap;
+    const rect = wrap.getBoundingClientRect();
+
+    backdrop.classList.remove('active');
+    closeBtn.classList.remove('active');
+    cloneCard.classList.remove('stage-flip');
+
+    clone.style.top = rect.top + 'px';
+    clone.style.left = rect.left + 'px';
+    clone.style.width = rect.width + 'px';
+    clone.style.height = rect.height + 'px';
+
+    stageCard = null;
+    sourceWrap = null;
+
+    const cleanup = () => {
+      clone.remove();
+      deck.classList.remove('deck-dim');
+      wrap.classList.remove('is-picked');
+    };
+    clearTimeout(closeTimer);
+    closeTimer = setTimeout(cleanup, 1150);
+  }
+
+  cardWraps.forEach((wrap) => {
+    const card = wrap.querySelector('.card');
+    const trigger = () => drawCard(wrap);
+    card.addEventListener('click', trigger);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        trigger();
+      }
+    });
+  });
+
+  closeBtn.addEventListener('click', closeStage);
+  backdrop.addEventListener('click', closeStage);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeStage();
+  });
+
+  // "/매니지"를 입력하면 관리자 페이지로 이동합니다.
+  const ADMIN_CMD = '/관리자';
+  const adminTrigger = document.getElementById('adminTrigger');
+
+  function isTypingTarget(el){
+    return el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+  }
+
+  function checkAdminTrigger(isComposing){
+    const val = adminTrigger.value;
+    if (val === ADMIN_CMD) {
+      location.href = 'admin.html';
+    } else if (!isComposing && !ADMIN_CMD.startsWith(val)) {
+      adminTrigger.value = '';
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && !isTypingTarget(document.activeElement)) {
+      e.preventDefault();
+      adminTrigger.value = '/';
+      adminTrigger.focus();
+    } else if (e.key === 'Escape' && document.activeElement === adminTrigger) {
+      adminTrigger.value = '';
+      adminTrigger.blur();
+    }
+  });
+
+  adminTrigger.addEventListener('input', (e) => checkAdminTrigger(e.isComposing));
+  adminTrigger.addEventListener('compositionend', () => checkAdminTrigger(false));
+  adminTrigger.addEventListener('blur', () => { adminTrigger.value = ''; });
+</script>
+
+</body>
+</html>

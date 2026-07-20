@@ -1,0 +1,250 @@
+/* dbr_taro.css는 메인 화면을 "한 페이지에 스크롤 없이" 보여주려고
+   데스크톱에서 html,body를 overflow:hidden으로 막아둡니다.
+   관리자 화면은 카드 편집 폼이 세로로 길어서 페이지 스크롤이 꼭 필요하므로 되돌립니다. */
+@media (min-width:881px){
+  html, body{
+    height:auto;
+    min-height:100%;
+    overflow-y:auto;
+    overflow-x:hidden;
+  }
+  body{
+    display:block;
+    height:auto;
+  }
+}
+
+.admin-wrap{
+  position:relative;
+  z-index:1;
+  max-width:760px;
+  margin:0 auto;
+  padding:56px 24px 80px;
+}
+
+.eyebrow{
+  font-family:'Cinzel', serif;
+  letter-spacing:.3em;
+  font-size:11px;
+  color:var(--gold);
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+/* ---------- 로그인 화면 ---------- */
+.login-box{
+  max-width:360px;
+  margin:100px auto;
+  background:linear-gradient(165deg, var(--deck-2), var(--void-2));
+  border:1.5px solid var(--gold-dim);
+  border-radius:16px;
+  padding:36px;
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.login-box h1{
+  font-family:'Song Myung', serif;
+  font-size:22px;
+  color:var(--gold-bright);
+  margin:0 0 22px;
+}
+.login-box input[type="password"]{
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid rgba(198,161,91,.35);
+  background:#10121c;
+  color:var(--ink);
+  font-size:.95rem;
+  margin-bottom:12px;
+}
+.login-box input[type="password"]:focus{
+  outline:none;
+  border-color:var(--gold-bright);
+}
+.login-error{
+  color:#ff8b8b;
+  font-size:.82rem;
+  min-height:1.2em;
+  margin-bottom:8px;
+}
+
+/* ---------- 상단 헤더 ---------- */
+.admin-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:30px;
+  padding-bottom:20px;
+  border-bottom:1px solid rgba(198,161,91,.25);
+}
+.admin-header h1{
+  font-family:'Song Myung', serif;
+  font-size:26px;
+  color:var(--gold-bright);
+  margin:2px 0 0;
+}
+.admin-header-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+/* ---------- 버튼 ---------- */
+.btn-gold{
+  border:none;
+  border-radius:999px;
+  padding:11px 22px;
+  font-family:'Cinzel', serif;
+  font-size:.82rem;
+  letter-spacing:.06em;
+  font-weight:700;
+  color:var(--void);
+  background:linear-gradient(135deg, var(--gold-bright), var(--gold));
+  cursor:pointer;
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+.btn-gold:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(198,161,91,.35);
+}
+.btn-ghost{
+  border:1px solid rgba(198,161,91,.4);
+  border-radius:999px;
+  padding:10px 18px;
+  font-size:.82rem;
+  color:var(--ink-dim);
+  background:transparent;
+  text-decoration:none;
+  cursor:pointer;
+  transition:background .2s ease, color .2s ease;
+}
+.btn-ghost:hover{
+  background:rgba(198,161,91,.1);
+  color:var(--ink);
+}
+
+/* ---------- 카드 편집 폼 ---------- */
+.card-editor{
+  background:linear-gradient(165deg, var(--deck-2), var(--void-2));
+  border:1px solid rgba(198,161,91,.2);
+  border-top:3px solid var(--gold);
+  border-radius:14px;
+  padding:26px;
+  margin-bottom:24px;
+}
+.editor-heading{
+  font-family:'Cinzel', serif;
+  font-size:.85rem;
+  letter-spacing:.08em;
+  color:var(--gold-bright);
+}
+.editor-heading .cat-preview{
+  color:var(--ink-dim);
+  font-family:'Noto Serif KR', serif;
+  letter-spacing:0;
+}
+
+.card-editor label{
+  display:block;
+  font-size:.78rem;
+  color:var(--ink-dim);
+  margin:16px 0 6px;
+  letter-spacing:.02em;
+}
+.card-editor input[type="text"],
+.card-editor input[type="url"],
+.card-editor input[type="password"],
+.card-editor textarea{
+  width:100%;
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid rgba(198,161,91,.25);
+  background:#10121c;
+  color:var(--ink);
+  font-family:'Noto Serif KR', serif;
+  font-size:.9rem;
+  resize:vertical;
+  transition:border-color .15s ease;
+}
+.card-editor input[type="text"]:focus,
+.card-editor input[type="url"]:focus,
+.card-editor input[type="password"]:focus,
+.card-editor textarea:focus{
+  outline:none;
+  border-color:var(--gold-bright);
+}
+.card-editor textarea.f-hook{
+  min-height:80px;
+  line-height:1.6;
+}
+.card-editor textarea.f-body{
+  min-height:150px;
+  line-height:1.6;
+}
+
+.color-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.color-row input[type="color"]{
+  width:44px;
+  height:36px;
+  padding:0;
+  border:none;
+  border-radius:8px;
+  background:none;
+  cursor:pointer;
+}
+.f-color-code{
+  font-size:.82rem;
+  color:var(--ink-dim);
+  font-variant-numeric:tabular-nums;
+}
+
+.image-field{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.image-preview{
+  width:64px;
+  height:64px;
+  border-radius:10px;
+  border:1px solid rgba(198,161,91,.35);
+  background:#10121c center/cover no-repeat;
+  flex-shrink:0;
+}
+.image-field-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.image-field-actions input[type="file"]{
+  color:var(--ink-dim);
+  font-size:.78rem;
+  max-width:200px;
+}
+
+.editor-footer{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-top:18px;
+}
+.save-status{
+  font-size:.82rem;
+  color:#8fe3a3;
+  min-height:1.2em;
+}
+
+@media (max-width:640px){
+  .admin-header{
+    align-items:flex-start;
+  }
+}

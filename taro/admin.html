@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관리자 모드 · DBR 비즈니스 타로</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Song+Myung&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="dbr_taro.css">
+<link rel="stylesheet" href="admin.css">
+<script src="data.js"></script>
+</head>
+<body>
+<div class="stars"></div>
+
+<div class="admin-wrap">
+  <div class="login-box" id="loginBox">
+    <div class="eyebrow">ADMIN ACCESS</div>
+    <h1>관리자 로그인</h1>
+    <input type="password" id="passwordInput" placeholder="비밀번호를 입력하세요" />
+    <p class="login-error" id="loginError"></p>
+    <button type="button" class="btn-gold" id="loginBtn">로그인</button>
+  </div>
+
+  <div id="editorSection" hidden>
+    <div class="admin-header">
+      <div>
+        <div class="eyebrow">DBR BUSINESS TAROT</div>
+        <h1>카드 내용 관리</h1>
+      </div>
+      <div class="admin-header-actions">
+        <a class="btn-ghost" href="dbr_taro.html">메인으로</a>
+        <button type="button" class="btn-ghost" id="resetBtn">기본값으로 되돌리기</button>
+      </div>
+    </div>
+
+    <div class="card-editor">
+      <div class="editor-heading">메인 화면 상단 문구</div>
+
+      <label>제목 (줄바꿈은 Enter로 구분됩니다)</label>
+      <textarea class="f-site-title" rows="2"></textarea>
+
+      <label>소개 문구 1</label>
+      <textarea class="f-site-lede1" rows="3"></textarea>
+
+      <label>소개 문구 2</label>
+      <textarea class="f-site-lede2" rows="2"></textarea>
+
+      <label>안내 하단 문구 ("✦ 카드를 클릭하면 뒤집힙니다 ✦" 아래에 표시됩니다)</label>
+      <input type="text" class="f-site-instruction" />
+
+      <div class="editor-footer">
+        <button type="button" class="btn-gold" id="saveSiteBtn">저장</button>
+        <span class="save-status" id="siteStatus"></span>
+      </div>
+    </div>
+
+    <div class="card-editor">
+      <div class="editor-heading">관리자 비밀번호 변경</div>
+      <label>새 비밀번호</label>
+      <input type="password" id="newPassword1" placeholder="새 비밀번호" />
+      <label>새 비밀번호 확인</label>
+      <input type="password" id="newPassword2" placeholder="새 비밀번호 확인" />
+      <div class="editor-footer">
+        <button type="button" class="btn-gold" id="savePasswordBtn">비밀번호 변경</button>
+        <span class="save-status" id="passwordStatus"></span>
+      </div>
+    </div>
+
+    <div id="editorList"></div>
+  </div>
+</div>
+
+<script>
+  const loginBox = document.getElementById('loginBox');
+  const editorSection = document.getElementById('editorSection');
+  const passwordInput = document.getElementById('passwordInput');
+  const loginError = document.getElementById('loginError');
+  const loginBtn = document.getElementById('loginBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const editorList = document.getElementById('editorList');
+  const newPassword1 = document.getElementById('newPassword1');
+  const newPassword2 = document.getElementById('newPassword2');
+  const savePasswordBtn = document.getElementById('savePasswordBtn');
+  const passwordStatus = document.getElementById('passwordStatus');
+  const siteTitleInput = document.querySelector('.f-site-title');
+  const siteLede1Input = document.querySelector('.f-site-lede1');
+  const siteLede2Input = document.querySelector('.f-site-lede2');
+  const siteInstructionInput = document.querySelector('.f-site-instruction');
+  const saveSiteBtn = document.getElementById('saveSiteBtn');
+  const siteStatus = document.getElementById('siteStatus');
+
+  function htmlToPlainText(html){
+    const div = document.createElement('div');
+    div.innerHTML = html.replace(/<br\s*\/?>/gi, '\n');
+    return div.textContent || '';
+  }
+
+  function plainTextToHtml(text){
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML.replace(/\n/g, '<br>');
+  }
+
+  function renderEditors(){
+    const cards = tarotGetCards();
+    editorList.innerHTML = '';
+
+    cards.forEach((card) => {
+      const box = document.createElement('div');
+      box.className = 'card-editor';
+      box.style.borderTopColor = card.color;
+      box.innerHTML =
+        '<div class="editor-heading">카드 ' + card.numeral + ' · <span class="cat-preview">' + card.category + '</span></div>' +
+
+        '<label>카테고리 라벨</label>' +
+        '<input type="text" class="f-cat" value="' + escapeAttr(card.category) + '" />' +
+
+        '<label>제목</label>' +
+        '<input type="text" class="f-title" value="' + escapeAttr(card.title) + '" />' +
+
+        '<label>짧은 문구 (카드 상단에 인용구처럼 표시됩니다)</label>' +
+        '<textarea class="f-hook">' + escapeHtml(htmlToPlainText(card.hook)) + '</textarea>' +
+
+        '<label>상세 본문 (스크롤 영역에 표시됩니다)</label>' +
+        '<textarea class="f-body">' + escapeHtml(htmlToPlainText(card.body)) + '</textarea>' +
+
+        '<label>dbr 원문 링크</label>' +
+        '<input type="url" class="f-dbr" value="' + escapeAttr(card.dbrLink) + '" placeholder="https://dbr.donga.com/..." />' +
+
+        '<label>카드 색상</label>' +
+        '<div class="color-row">' +
+          '<input type="color" class="f-color" value="' + card.color + '" />' +
+          '<span class="f-color-code">' + card.color + '</span>' +
+        '</div>' +
+
+        '<label>앞면 이미지 (뒤집기 전 아이콘 자리에 표시됩니다)</label>' +
+        '<div class="image-field">' +
+          '<div class="image-preview f-front-preview"' + (card.frontImage ? ' style="background-image:url(\'' + card.frontImage + '\')"' : '') + '></div>' +
+          '<div class="image-field-actions">' +
+            '<input type="file" accept="image/*" class="f-front-input" />' +
+            '<button type="button" class="btn-ghost f-front-clear">이미지 제거</button>' +
+          '</div>' +
+        '</div>' +
+
+        '<label>뒷면 이미지 (카드 내용 상단 작은 아이콘 자리에 표시됩니다)</label>' +
+        '<div class="image-field">' +
+          '<div class="image-preview f-back-preview"' + (card.backImage ? ' style="background-image:url(\'' + card.backImage + '\')"' : '') + '></div>' +
+          '<div class="image-field-actions">' +
+            '<input type="file" accept="image/*" class="f-back-input" />' +
+            '<button type="button" class="btn-ghost f-back-clear">이미지 제거</button>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="editor-footer">' +
+          '<button type="button" class="btn-gold f-save">저장</button>' +
+          '<span class="save-status"></span>' +
+        '</div>';
+
+      const colorInput = box.querySelector('.f-color');
+      const colorCode = box.querySelector('.f-color-code');
+      colorInput.addEventListener('input', () => {
+        colorCode.textContent = colorInput.value;
+        box.style.borderTopColor = colorInput.value;
+      });
+
+      let pendingFrontImage = card.frontImage || '';
+      let pendingBackImage = card.backImage || '';
+
+      function wireImageField(inputSelector, previewSelector, clearSelector, onChange) {
+        const input = box.querySelector(inputSelector);
+        const preview = box.querySelector(previewSelector);
+        const clearBtn = box.querySelector(clearSelector);
+
+        input.addEventListener('change', () => {
+          const file = input.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            onChange(reader.result);
+            preview.style.backgroundImage = 'url(\'' + reader.result + '\')';
+          };
+          reader.readAsDataURL(file);
+        });
+
+        clearBtn.addEventListener('click', () => {
+          onChange('');
+          preview.style.backgroundImage = 'none';
+          input.value = '';
+        });
+      }
+
+      wireImageField('.f-front-input', '.f-front-preview', '.f-front-clear', (val) => { pendingFrontImage = val; });
+      wireImageField('.f-back-input', '.f-back-preview', '.f-back-clear', (val) => { pendingBackImage = val; });
+
+      const status = box.querySelector('.save-status');
+      box.querySelector('.f-save').addEventListener('click', () => {
+        const allCards = tarotGetCards();
+        const idx = allCards.findIndex((c) => c.id === card.id);
+        allCards[idx] = {
+          ...allCards[idx],
+          category: box.querySelector('.f-cat').value.trim(),
+          title: box.querySelector('.f-title').value.trim(),
+          hook: plainTextToHtml(box.querySelector('.f-hook').value),
+          body: plainTextToHtml(box.querySelector('.f-body').value),
+          dbrLink: box.querySelector('.f-dbr').value.trim(),
+          color: colorInput.value,
+          frontImage: pendingFrontImage,
+          backImage: pendingBackImage,
+        };
+        try {
+          tarotSaveCards(allCards);
+          status.style.color = '';
+          status.textContent = '저장되었습니다. 메인 화면에 새로고침하면 바로 반영됩니다.';
+        } catch (err) {
+          status.style.color = '#ff8b8b';
+          status.textContent = '저장 실패: 이미지 용량이 너무 클 수 있어요 (브라우저 저장 공간 초과).';
+        }
+        setTimeout(() => { status.textContent = ''; }, 4000);
+      });
+
+      editorList.appendChild(box);
+    });
+  }
+
+  function escapeHtml(str){
+    return String(str || '').replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  }
+  function escapeAttr(str){
+    return escapeHtml(str).replace(/"/g, '&quot;');
+  }
+
+  function renderSiteEditor(){
+    const site = tarotGetSite();
+    siteTitleInput.value = site.title;
+    siteLede1Input.value = site.lede1;
+    siteLede2Input.value = site.lede2;
+    siteInstructionInput.value = site.instructionSub;
+  }
+
+  saveSiteBtn.addEventListener('click', () => {
+    tarotSaveSite({
+      title: siteTitleInput.value,
+      lede1: siteLede1Input.value,
+      lede2: siteLede2Input.value,
+      instructionSub: siteInstructionInput.value.trim(),
+    });
+    siteStatus.style.color = '';
+    siteStatus.textContent = '저장되었습니다. 메인 화면에 새로고침하면 바로 반영됩니다.';
+    setTimeout(() => { siteStatus.textContent = ''; }, 4000);
+  });
+
+  function showEditor(){
+    loginBox.hidden = true;
+    editorSection.hidden = false;
+    renderSiteEditor();
+    renderEditors();
+  }
+  function showLogin(){
+    loginBox.hidden = false;
+    editorSection.hidden = true;
+  }
+
+  loginBtn.addEventListener('click', doLogin);
+  passwordInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  function doLogin(){
+    if (passwordInput.value === tarotGetPassword()) {
+      loginError.textContent = '';
+      passwordInput.value = '';
+      showEditor();
+    } else {
+      loginError.textContent = '비밀번호가 올바르지 않습니다.';
+    }
+  }
+
+  resetBtn.addEventListener('click', () => {
+    if (confirm('저장된 수정 내용을 지우고 기본값으로 되돌릴까요?')) {
+      tarotResetCards();
+      tarotResetSite();
+      renderSiteEditor();
+      renderEditors();
+    }
+  });
+
+  savePasswordBtn.addEventListener('click', () => {
+    const pw1 = newPassword1.value;
+    const pw2 = newPassword2.value;
+    if (!pw1) {
+      passwordStatus.style.color = '#ff8b8b';
+      passwordStatus.textContent = '새 비밀번호를 입력해주세요.';
+      return;
+    }
+    if (pw1 !== pw2) {
+      passwordStatus.style.color = '#ff8b8b';
+      passwordStatus.textContent = '두 비밀번호가 서로 다릅니다.';
+      return;
+    }
+    tarotSavePassword(pw1);
+    newPassword1.value = '';
+    newPassword2.value = '';
+    passwordStatus.style.color = '';
+    passwordStatus.textContent = '비밀번호가 변경되었습니다.';
+    setTimeout(() => { passwordStatus.textContent = ''; }, 4000);
+  });
+
+  showLogin();
+</script>
+</body>
+</html>
