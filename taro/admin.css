@@ -199,10 +199,27 @@
   background:none;
   cursor:pointer;
 }
-.f-color-code{
+.card-editor input.f-color-code{
+  width:120px;
   font-size:.82rem;
-  color:var(--ink-dim);
   font-variant-numeric:tabular-nums;
+  text-transform:lowercase;
+}
+
+.color-preview{
+  margin-top:10px;
+  height:70px;
+  border-radius:10px;
+  border:1px solid rgba(198,161,91,.25);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.color-preview-label{
+  font-family:'Song Myung', serif;
+  font-size:16px;
+  color:var(--gold-bright);
+  text-shadow:0 0 10px rgba(198,161,91,.3);
 }
 
 .image-field{

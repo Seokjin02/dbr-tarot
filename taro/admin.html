@@ -91,6 +91,15 @@
   const saveSiteBtn = document.getElementById('saveSiteBtn');
   const siteStatus = document.getElementById('siteStatus');
 
+  function normalizeHexColor(input){
+    let v = input.trim();
+    if (!v.startsWith('#')) v = '#' + v;
+    if (/^#[0-9a-fA-F]{3}$/.test(v)) {
+      v = '#' + v.slice(1).split('').map((c) => c + c).join('');
+    }
+    return /^#[0-9a-fA-F]{6}$/.test(v) ? v.toLowerCase() : null;
+  }
+
   function htmlToPlainText(html){
     const div = document.createElement('div');
     div.innerHTML = html.replace(/<br\s*\/?>/gi, '\n');
@@ -132,7 +141,10 @@
         '<label>카드 색상</label>' +
         '<div class="color-row">' +
           '<input type="color" class="f-color" value="' + card.color + '" />' +
-          '<span class="f-color-code">' + card.color + '</span>' +
+          '<input type="text" class="f-color-code" value="' + card.color + '" placeholder="#5c2a63" maxlength="7" />' +
+        '</div>' +
+        '<div class="color-preview f-color-preview">' +
+          '<span class="color-preview-label">' + escapeAttr(card.title) + '</span>' +
         '</div>' +
 
         '<label>앞면 이미지 (뒤집기 전 아이콘 자리에 표시됩니다)</label>' +
@@ -160,9 +172,29 @@
 
       const colorInput = box.querySelector('.f-color');
       const colorCode = box.querySelector('.f-color-code');
+      const colorPreview = box.querySelector('.f-color-preview');
+
+      function updateColorPreview(color){
+        colorPreview.style.background = 'linear-gradient(165deg, ' + color + ', #150c26 65%)';
+      }
+      updateColorPreview(card.color);
+
       colorInput.addEventListener('input', () => {
-        colorCode.textContent = colorInput.value;
+        colorCode.value = colorInput.value;
         box.style.borderTopColor = colorInput.value;
+        updateColorPreview(colorInput.value);
+      });
+      colorCode.addEventListener('input', () => {
+        const normalized = normalizeHexColor(colorCode.value);
+        if (normalized) {
+          colorInput.value = normalized;
+          box.style.borderTopColor = normalized;
+          updateColorPreview(normalized);
+        }
+      });
+      colorCode.addEventListener('blur', () => {
+        const normalized = normalizeHexColor(colorCode.value);
+        if (normalized) colorCode.value = normalized;
       });
 
       let pendingFrontImage = card.frontImage || '';
