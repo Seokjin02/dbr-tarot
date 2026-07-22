@@ -68,6 +68,10 @@
   min-height:1.2em;
   margin-bottom:8px;
 }
+.login-back{
+  display:inline-block;
+  margin-top:14px;
+}
 
 /* ---------- 상단 헤더 ---------- */
 .admin-header{
