@@ -1,5 +1,5 @@
 {
   "redirects": [
-    { "source": "/관리자", "destination": "/admin.html" }
+    { "source": "/%EA%B4%80%EB%A6%AC%EC%9E%90", "destination": "/admin.html" }
   ]
 }
