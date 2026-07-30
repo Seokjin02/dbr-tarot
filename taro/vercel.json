@@ -1,0 +1,5 @@
+{
+  "redirects": [
+    { "source": "/관리자", "destination": "/admin.html" }
+  ]
+}

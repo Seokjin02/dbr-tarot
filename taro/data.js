@@ -98,6 +98,10 @@ function tarotSavePassword(newPassword) {
   localStorage.setItem(TAROT_PASSWORD_KEY, newPassword);
 }
 
+function tarotResetPassword() {
+  localStorage.removeItem(TAROT_PASSWORD_KEY);
+}
+
 const TAROT_SITE_STORAGE_KEY = 'dbrTarotSite.v1';
 
 const TAROT_DEFAULT_SITE = {
@@ -125,4 +129,31 @@ function tarotSaveSite(site) {
 
 function tarotResetSite() {
   localStorage.removeItem(TAROT_SITE_STORAGE_KEY);
+}
+
+// 방문/클릭 수 집계는 무료 공개 카운터 API(counterapi.dev)를 사용합니다.
+// 서버가 없는 정적 사이트라 별도 백엔드 없이 숫자만 늘리고 읽어옵니다.
+const TAROT_STATS_NAMESPACE = 'dbrtarot2026biz';
+
+function tarotTodayKey() {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + mm + '-' + dd;
+}
+
+function tarotHitStat(key) {
+  fetch('https://api.counterapi.dev/v1/' + TAROT_STATS_NAMESPACE + '/' + key + '/up').catch(() => {});
+  fetch('https://api.counterapi.dev/v1/' + TAROT_STATS_NAMESPACE + '/' + key + '-' + tarotTodayKey() + '/up').catch(() => {});
+}
+
+async function tarotGetStat(key) {
+  try {
+    const res = await fetch('https://api.counterapi.dev/v1/' + TAROT_STATS_NAMESPACE + '/' + key + '/');
+    if (!res.ok) return 0;
+    const data = await res.json();
+    return data.count || 0;
+  } catch (err) {
+    return null;
+  }
 }

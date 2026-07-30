@@ -188,6 +188,7 @@
     document.getElementById('siteInstructionSub').textContent = site.instructionSub;
   }
   renderSiteContent();
+  tarotHitStat('visits');
 
   // 관리자 페이지(admin.html)에서 저장한 내용을 읽어와 카드에 반영합니다.
   function renderCardContent(){
@@ -242,6 +243,16 @@
     });
   }
   renderCardContent();
+
+  // DBR 아티클 링크 클릭 수를 집계합니다. 뽑기 연출 중 복제된 카드에도 그대로 적용되도록
+  // 개별 링크가 아니라 document에 이벤트 위임으로 걸어둡니다.
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('.dbr-link');
+    if (!link) return;
+    const cardEl = link.closest('.card');
+    const cardId = cardEl ? cardEl.dataset.id : 'unknown';
+    tarotHitStat('dbr' + cardId);
+  });
 
   // 카드를 클릭하면 화면 중앙으로 날아가 커지면서 스핀하며 뒷면을 공개합니다.
   const deck = document.querySelector('.deck');
@@ -305,6 +316,9 @@
 
     const rect = wrap.getBoundingClientRect();
     spawnCardBurst(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+    const cardId = wrap.querySelector('.card').dataset.id;
+    tarotHitStat('card' + cardId);
 
     deck.classList.add('deck-dim');
     wrap.classList.add('is-picked');

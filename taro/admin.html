@@ -21,6 +21,7 @@
     <input type="password" id="passwordInput" placeholder="비밀번호를 입력하세요" />
     <p class="login-error" id="loginError"></p>
     <button type="button" class="btn-gold" id="loginBtn">로그인</button>
+    <button type="button" class="btn-ghost login-reset" id="resetPasswordBtn">비밀번호를 잊으셨나요? (1234로 초기화)</button>
     <a class="btn-ghost login-back" href="dbr_taro.html">메인으로 돌아가기</a>
   </div>
 
@@ -33,6 +34,53 @@
       <div class="admin-header-actions">
         <a class="btn-ghost" href="dbr_taro.html">메인으로</a>
         <button type="button" class="btn-ghost" id="resetBtn">기본값으로 되돌리기</button>
+      </div>
+    </div>
+
+    <div class="card-editor">
+      <div class="editor-heading">방문 · 클릭 통계 <span class="cat-preview">(오늘 기준, 매일 0으로 초기화)</span></div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-label">오늘 방문 수</div>
+          <div class="stat-value" id="statVisits">-</div>
+          <div class="stat-total" id="statVisitsTotal"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">카드 I 클릭</div>
+          <div class="stat-value" id="statCard1">-</div>
+          <div class="stat-total" id="statCard1Total"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">카드 II 클릭</div>
+          <div class="stat-value" id="statCard2">-</div>
+          <div class="stat-total" id="statCard2Total"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">카드 III 클릭</div>
+          <div class="stat-value" id="statCard3">-</div>
+          <div class="stat-total" id="statCard3Total"></div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-label">DBR 아티클 클릭 (I)</div>
+          <div class="stat-value" id="statDbr1">-</div>
+          <div class="stat-total" id="statDbr1Total"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">DBR 아티클 클릭 (II)</div>
+          <div class="stat-value" id="statDbr2">-</div>
+          <div class="stat-total" id="statDbr2Total"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">DBR 아티클 클릭 (III)</div>
+          <div class="stat-value" id="statDbr3">-</div>
+          <div class="stat-total" id="statDbr3Total"></div>
+        </div>
+      </div>
+      <div class="editor-footer">
+        <button type="button" class="btn-ghost" id="refreshStatsBtn">새로고침</button>
+        <span class="save-status" id="statsStatus"></span>
       </div>
     </div>
 
@@ -91,6 +139,8 @@
   const siteInstructionInput = document.querySelector('.f-site-instruction');
   const saveSiteBtn = document.getElementById('saveSiteBtn');
   const siteStatus = document.getElementById('siteStatus');
+  const refreshStatsBtn = document.getElementById('refreshStatsBtn');
+  const statsStatus = document.getElementById('statsStatus');
 
   function normalizeHexColor(input){
     let v = input.trim();
@@ -284,11 +334,33 @@
     setTimeout(() => { siteStatus.textContent = ''; }, 4000);
   });
 
+  async function loadStatPair(key){
+    const [today, total] = await Promise.all([
+      tarotGetStat(key + '-' + tarotTodayKey()),
+      tarotGetStat(key),
+    ]);
+    return { today, total };
+  }
+
+  async function loadStats(){
+    statsStatus.textContent = '불러오는 중...';
+    const keys = ['visits', 'card1', 'card2', 'card3', 'dbr1', 'dbr2', 'dbr3'];
+    const ids = ['statVisits', 'statCard1', 'statCard2', 'statCard3', 'statDbr1', 'statDbr2', 'statDbr3'];
+    const results = await Promise.all(keys.map(loadStatPair));
+    results.forEach((r, i) => {
+      document.getElementById(ids[i]).textContent = r.today === null ? '오류' : r.today;
+      document.getElementById(ids[i] + 'Total').textContent = r.total === null ? '' : '누적 ' + r.total;
+    });
+    statsStatus.textContent = '';
+  }
+  refreshStatsBtn.addEventListener('click', loadStats);
+
   function showEditor(){
     loginBox.hidden = true;
     editorSection.hidden = false;
     renderSiteEditor();
     renderEditors();
+    loadStats();
   }
   function showLogin(){
     loginBox.hidden = false;
@@ -300,12 +372,22 @@
     if (e.key === 'Enter') doLogin();
   });
 
+  const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+  resetPasswordBtn.addEventListener('click', () => {
+    if (confirm('비밀번호를 1234로 초기화할까요?')) {
+      tarotResetPassword();
+      loginError.style.color = '#8fe3a3';
+      loginError.textContent = '비밀번호가 1234로 초기화되었습니다.';
+    }
+  });
+
   function doLogin(){
     if (passwordInput.value === tarotGetPassword()) {
       loginError.textContent = '';
       passwordInput.value = '';
       showEditor();
     } else {
+      loginError.style.color = '';
       loginError.textContent = '비밀번호가 올바르지 않습니다.';
     }
   }
