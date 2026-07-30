@@ -46,7 +46,7 @@
             <path d="M20 45 L35 45" stroke-linecap="round" stroke-dasharray="2 6"/>
             <path d="M80 100 L65 100" stroke-linecap="round" stroke-dasharray="2 6"/>
           </svg>
-          <span class="tap-hint"><span class="tap-divider"><span class="dot"></span></span>TAP TO REVEAL</span>
+          <span class="tap-hint"><span class="tap-divider"><span class="dot">
         </div>
         <div class="face face-back">
           <div class="card-numeral">I</div>
@@ -88,7 +88,7 @@
             <path d="M50 15 L82 28 L82 62 C82 92 66 112 50 122 C34 112 18 92 18 62 L18 28 Z" stroke-linejoin="round"/>
             <path d="M50 55 C44 45 28 47 28 62 C28 75 50 92 50 92 C50 92 72 75 72 62 C72 47 56 45 50 55 Z" stroke-linejoin="round"/>
           </svg>
-          <span class="tap-hint"><span class="tap-divider"><span class="dot"></span></span>TAP TO REVEAL</span>
+          <span class="tap-hint"><span class="tap-divider"><span class="dot">
         </div>
         <div class="face face-back">
           <div class="card-numeral">II</div>
@@ -132,7 +132,7 @@
             <path d="M75 30 L64 22 L70 12 L82 18 Z" stroke-linejoin="round"/>
             <circle cx="50" cy="70" r="7" />
           </svg>
-          <span class="tap-hint"><span class="tap-divider"><span class="dot"></span></span>TAP TO REVEAL</span>
+          <span class="tap-hint"><span class="tap-divider"><span class="dot">
         </div>
         <div class="face face-back">
           <div class="card-numeral">III</div>
@@ -217,7 +217,7 @@
       }
 
       const back = cardEl.querySelector('.face-back');
-      back.style.background = 'linear-gradient(165deg, ' + card.color + ', #150c26 65%)';
+      back.style.background = 'linear-gradient(165deg, ' + card.color + ', #180b13 65%)';
       back.querySelector('.card-numeral').textContent = card.numeral;
       back.querySelector('.card-cat').textContent = card.category;
       back.querySelector('.card-title').textContent = card.title;
@@ -299,37 +299,10 @@
     };
   }
 
-  function spawnCardBurst(x, y){
-    const burst = document.createElement('div');
-    burst.className = 'card-burst';
-    burst.style.left = x + 'px';
-    burst.style.top = y + 'px';
-
-    const glow = document.createElement('div');
-    glow.className = 'burst-glow';
-    burst.appendChild(glow);
-
-    const sparkCount = 10;
-    for (let i = 0; i < sparkCount; i++){
-      const spark = document.createElement('div');
-      spark.className = 'burst-spark';
-      const angle = (Math.PI * 2 * i) / sparkCount + (Math.random() - 0.5) * 0.4;
-      const dist = 40 + Math.random() * 30;
-      spark.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
-      spark.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
-      spark.style.animationDelay = (Math.random() * 0.05) + 's';
-      burst.appendChild(spark);
-    }
-
-    document.body.appendChild(burst);
-    setTimeout(() => burst.remove(), 650);
-  }
-
   function drawCard(wrap){
     if (stageCard) return;
 
     const rect = wrap.getBoundingClientRect();
-    spawnCardBurst(rect.left + rect.width / 2, rect.top + rect.height / 2);
 
     const cardId = wrap.querySelector('.card').dataset.id;
     tarotHitStat('card' + cardId);

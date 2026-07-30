@@ -156,7 +156,8 @@ const TAROT_SHEET_STATIC = {
 function tarotGetSheetConfig() {
   try {
     const raw = localStorage.getItem(TAROT_SHEET_CONFIG_KEY);
-    if (raw) return { url: TAROT_SHEET_WEBAPP_URL, token: '', ...JSON.parse(raw) };
+    // url은 항상 코드의 상수를 씁니다. 예전에 저장해 둔 주소가 남아 있어도 무시합니다.
+    if (raw) return { token: '', ...JSON.parse(raw), url: TAROT_SHEET_WEBAPP_URL };
   } catch (err) {
     console.warn('시트 연동 설정을 읽지 못했습니다.', err);
   }
@@ -357,9 +358,19 @@ function tarotTodayKey(date) {
   return d.getFullYear() + '-' + mm + '-' + dd;
 }
 
+// 주간 집계는 월요일에 새로 시작합니다.
+// 그 주 월요일 날짜를 키로 쓰기 때문에, 월요일이 되면 자동으로 새 카운터가 잡히고
+// 화면상으로는 0부터 다시 세는 것처럼 보입니다. (지난주 숫자도 지워지지 않고 남습니다)
+function tarotWeekKey(date) {
+  const d = new Date(date || new Date());
+  // getDay()는 일=0, 월=1 … 토=6. 이번 주 월요일까지 되돌립니다. (일요일이면 6일 전)
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return 'w' + tarotTodayKey(d);
+}
+
 function tarotHitStat(key) {
   fetch('https://api.counterapi.dev/v1/' + TAROT_STATS_NAMESPACE + '/' + key + '/up').catch(() => {});
-  fetch('https://api.counterapi.dev/v1/' + TAROT_STATS_NAMESPACE + '/' + key + '-' + tarotTodayKey() + '/up').catch(() => {});
+  fetch('https://api.counterapi.dev/v1/' + TAROT_STATS_NAMESPACE + '/' + key + '-' + tarotWeekKey() + '/up').catch(() => {});
 }
 
 async function tarotGetStat(key) {
