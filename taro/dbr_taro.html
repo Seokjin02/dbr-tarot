@@ -167,7 +167,7 @@
 </main>
 
 <footer>
-  ✦ DBR 비즈니스 타로 · 카드를 뒤집어 하반기 인사이트를 확인하세요 ✦
+  ✦ DBR 인스타그램, DBR 오픈채팅방 ✦
 </footer>
 
 <input type="text" id="adminTrigger" autocomplete="off" tabindex="-1" aria-hidden="true">
@@ -243,6 +243,20 @@
     });
   }
   renderCardContent();
+
+  // 구글 시트의 가장 최근 날짜 탭을 읽어와 최신 내용으로 다시 그립니다.
+  // 먼저 저장된 내용으로 화면을 채워두고, 시트 응답이 오면 갈아끼우는 방식이라
+  // 시트가 느리거나 실패해도 빈 화면이 보이지 않습니다.
+  tarotLoadFromSheet().then((result) => {
+    if (!result.ok) {
+      if (!result.skipped) console.warn('시트에서 최신 내용을 읽지 못했습니다:', result.error);
+      return;
+    }
+    // 카드를 이미 뽑아 연출이 진행 중이면 화면을 건드리지 않습니다.
+    if (document.querySelector('.stage-card')) return;
+    renderSiteContent();
+    renderCardContent();
+  });
 
   // DBR 아티클 링크 클릭 수를 집계합니다. 뽑기 연출 중 복제된 카드에도 그대로 적용되도록
   // 개별 링크가 아니라 document에 이벤트 위임으로 걸어둡니다.

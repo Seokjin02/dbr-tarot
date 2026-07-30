@@ -164,6 +164,16 @@
   margin:16px 0 6px;
   letter-spacing:.02em;
 }
+.field-note{
+  font-size:.78rem;
+  line-height:1.7;
+  color:var(--ink-dim);
+  margin:12px 0 0;
+}
+.field-note strong{
+  color:var(--gold-bright);
+  font-weight:500;
+}
 .card-editor input[type="text"],
 .card-editor input[type="url"],
 .card-editor input[type="password"],

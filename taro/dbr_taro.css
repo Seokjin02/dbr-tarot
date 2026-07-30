@@ -676,10 +676,10 @@ header{
   aspect-ratio:auto;
   cursor:default;
   transform:rotateY(0deg);
-  transition:transform 1.15s cubic-bezier(.34,1.56,.64,1);
+  transition:transform .85s cubic-bezier(.34,1.56,.64,1);
 }
 .stage-card .card.stage-flip{
-  transform:rotateY(540deg);
+  transform:rotateY(180deg);
 }
 .stage-card .tap-hint{display:none;}
 
@@ -864,23 +864,7 @@ body::before{
 }
 
 .stage-card .card.stage-flip{
-  transform:rotateY(540deg) scale(1.04);
-}
-
-.stage-card .card.stage-flip::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:2;
-  pointer-events:none;
-  border-radius:14px;
-  background:radial-gradient(circle, rgba(230,194,122,.55), transparent 70%);
-  opacity:0;
-  animation:goldFlash 1.15s ease-in-out;
-}
-@keyframes goldFlash{
-  0%, 100%{opacity:0;}
-  47%, 53%{opacity:.85;}
+  transform:rotateY(180deg) scale(1.04);
 }
 
 .stage-close{

@@ -131,12 +131,227 @@ function tarotResetSite() {
   localStorage.removeItem(TAROT_SITE_STORAGE_KEY);
 }
 
+// ---------- 구글 시트 연동 ----------
+// 구글 시트가 원본입니다.
+//   · 관리자가 저장하면  → 오늘 날짜 탭에 기록됩니다 (쓰기, 토큰 필요)
+//   · 방문자가 접속하면  → 가장 최근 날짜 탭을 읽어 화면에 반영합니다 (읽기, 토큰 불필요)
+//
+// ⚠️ 아래 URL은 반드시 채워야 방문자 화면에 반영됩니다.
+//    Apps Script를 웹앱으로 배포하고 받은 https://script.google.com/macros/s/.../exec 주소를
+//    여기에 붙여넣은 뒤 커밋·배포하세요. 방문자 브라우저에는 localStorage가 없으므로
+//    이 주소가 코드에 들어 있어야만 시트를 읽어올 수 있습니다.
+const TAROT_SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyRXgkeS340NJ5RLpGkBhTR-twoYkHkAuVDtMzdk8UWpzmqHe4aWWyDFIW-P7hwmP7Www/exec';
+
+// 쓰기용 토큰만 관리자 브라우저에 둡니다. 저장소에는 커밋되지 않습니다.
+const TAROT_SHEET_CONFIG_KEY = 'dbrTarotSheetSync.v1';
+
+// 관리자 페이지에서 아직 수정할 수 없는 항목들입니다.
+// dbr_taro.html에 하드코딩된 현재 값을 그대로 시트에 남깁니다.
+const TAROT_SHEET_STATIC = {
+  pageTitle: 'DBR 비즈니스 타로 · 7월 1주 차',
+  instruction: '✦ 카드를 클릭하면 뒤집힙니다 ✦',
+  footer: '✦ DBR 비즈니스 타로 · 카드를 뒤집어 하반기 인사이트를 확인하세요 ✦',
+};
+
+function tarotGetSheetConfig() {
+  try {
+    const raw = localStorage.getItem(TAROT_SHEET_CONFIG_KEY);
+    if (raw) return { url: TAROT_SHEET_WEBAPP_URL, token: '', ...JSON.parse(raw) };
+  } catch (err) {
+    console.warn('시트 연동 설정을 읽지 못했습니다.', err);
+  }
+  return { url: TAROT_SHEET_WEBAPP_URL, token: '' };
+}
+
+function tarotSaveSheetConfig(config) {
+  localStorage.setItem(TAROT_SHEET_CONFIG_KEY, JSON.stringify({
+    url: TAROT_SHEET_WEBAPP_URL,
+    token: (config.token || '').trim(),
+  }));
+}
+
+// 시트 탭 이름은 저장한 날짜로 정합니다 (예: 2026-07-30).
+function tarotSheetTabName(date) {
+  return tarotTodayKey(date);
+}
+
+// 카드 본문은 <br>이 섞인 HTML로 저장돼 있어 시트에는 사람이 읽는 줄바꿈으로 풀어 씁니다.
+function tarotHtmlToText(html) {
+  const div = document.createElement('div');
+  div.innerHTML = String(html || '').replace(/<br\s*\/?>/gi, '\n');
+  return div.textContent || '';
+}
+
+// 이미지는 base64라 시트 셀 용량(5만 자)을 넘기기 쉬워 설정 여부만 남깁니다.
+function tarotImageNote(card) {
+  const parts = [];
+  if (card.frontImage) parts.push('앞면 있음');
+  if (card.backImage) parts.push('뒷면 있음');
+  return parts.length ? parts.join(', ') : '없음';
+}
+
+// 기존 시트 탭들과 같은 key 이름을 씁니다.
+function tarotBuildSheetRows(site, cards) {
+  const rows = [
+    ['page_title', TAROT_SHEET_STATIC.pageTitle, '브라우저 탭에 뜨는 제목 (관리자 페이지에서 수정 불가)'],
+    ['h1', site.title || '', '페이지 맨 위 큰 제목'],
+    ['lede1', site.lede1 || '', '첫 번째 리드 문단'],
+    ['lede2', site.lede2 || '', '두 번째 리드 문단'],
+    ['instruction', TAROT_SHEET_STATIC.instruction, '카드 위 안내 문구 (관리자 페이지에서 수정 불가)'],
+    ['instruction_sub', site.instructionSub || '', '안내 문구 아래 작은 글씨'],
+    ['footer', TAROT_SHEET_STATIC.footer, '페이지 맨 아래 문구 (관리자 페이지에서 수정 불가)'],
+  ];
+
+  cards.forEach((card, i) => {
+    const n = i + 1;
+    rows.push([n + '번 카드', '', '─────────────────']);
+    rows.push(['card' + n + '_cat', card.category || '', n + '번 카드 분류']);
+    rows.push(['card' + n + '_title', card.title || '', n + '번 카드 제목']);
+    rows.push(['card' + n + '_hook', tarotHtmlToText(card.hook), n + '번 카드 훅 (줄바꿈=Alt+Enter)']);
+    rows.push(['card' + n + '_body', tarotHtmlToText(card.body), n + '번 카드 본문 (빈 줄=문단 나눔)']);
+    rows.push(['card' + n + '_link', card.dbrLink || '', n + '번 카드 DBR 아티클 링크']);
+    rows.push(['card' + n + '_color', card.color || '', n + '번 카드 색상']);
+    rows.push(['card' + n + '_image', tarotImageNote(card), n + '번 카드 이미지 (이미지 파일 자체는 시트에 저장되지 않습니다)']);
+  });
+
+  return rows;
+}
+
+// 현재 저장된 카드/문구 전체를 오늘 날짜 탭에 기록합니다.
+// 성공하면 { ok:true, sheetName, created }, 실패하면 { ok:false, error }를 돌려줍니다.
+async function tarotSyncToSheet() {
+  const config = tarotGetSheetConfig();
+  if (!config.url) {
+    return { ok: false, skipped: true, error: '시트 연동이 설정되지 않았습니다.' };
+  }
+
+  const payload = {
+    token: config.token,
+    sheetName: tarotSheetTabName(),
+    rows: tarotBuildSheetRows(tarotGetSite(), tarotGetCards()),
+  };
+
+  try {
+    // Apps Script 웹앱은 CORS 사전 요청(preflight)에 응답하지 못합니다.
+    // text/plain으로 보내면 '단순 요청'이 되어 사전 요청 없이 통과합니다.
+    const res = await fetch(config.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      redirect: 'follow',
+    });
+    if (!res.ok) {
+      return { ok: false, error: '서버 응답 오류 (HTTP ' + res.status + ')' };
+    }
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: '시트에 연결하지 못했습니다. URL을 확인해 주세요. (' + err.message + ')' };
+  }
+}
+
+// ---------- 시트 → 화면 (방문자에게 최신 내용을 보여주는 경로) ----------
+
+// 시트에 저장된 평문을 다시 카드용 HTML로 되돌립니다.
+function tarotTextToHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = String(text || '');
+  return div.innerHTML.replace(/\n/g, '<br>');
+}
+
+// Apps Script 웹앱은 CORS 응답이 불안정해서, 읽기는 <script> 태그로 불러옵니다.
+// 공개된 문구만 오가므로 JSONP로도 안전합니다.
+function tarotJsonp(url, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const name = 'tarotCb' + Date.now() + Math.floor(Math.random() * 1e6);
+    const script = document.createElement('script');
+    let settled = false;
+
+    function cleanup() {
+      settled = true;
+      delete window[name];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    const timer = setTimeout(() => {
+      if (settled) return;
+      cleanup();
+      reject(new Error('시트 응답 시간이 초과되었습니다.'));
+    }, timeoutMs || 8000);
+
+    window[name] = (data) => {
+      if (settled) return;
+      clearTimeout(timer);
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = () => {
+      if (settled) return;
+      clearTimeout(timer);
+      cleanup();
+      reject(new Error('시트에 연결하지 못했습니다. 웹앱 URL과 배포 상태를 확인해 주세요.'));
+    };
+
+    // 캐시된 옛 응답을 받지 않도록 매번 다른 주소로 요청합니다.
+    script.src = url + (url.indexOf('?') === -1 ? '?' : '&')
+      + 'callback=' + name + '&t=' + Date.now();
+    document.head.appendChild(script);
+  });
+}
+
+// 시트에서 읽은 key/value를 앱이 쓰는 형태로 바꿔 저장합니다.
+// 시트에 없는 항목(이미지, 숫자 기호 등)은 기존 값을 그대로 둡니다.
+function tarotApplySheetData(map) {
+  const site = { ...tarotGetSite() };
+  if (map.h1) site.title = map.h1;
+  if (map.lede1) site.lede1 = map.lede1;
+  if (map.lede2) site.lede2 = map.lede2;
+  if (map.instruction_sub) site.instructionSub = map.instruction_sub;
+  tarotSaveSite(site);
+
+  const cards = tarotGetCards().map((card, i) => {
+    const prefix = 'card' + (i + 1) + '_';
+    const pick = (suffix, fallback) => {
+      const value = map[prefix + suffix];
+      return value === undefined || value === '' ? fallback : value;
+    };
+    return {
+      ...card,
+      category: pick('cat', card.category),
+      title: pick('title', card.title),
+      hook: tarotTextToHtml(pick('hook', tarotHtmlToText(card.hook))),
+      body: tarotTextToHtml(pick('body', tarotHtmlToText(card.body))),
+      dbrLink: pick('link', card.dbrLink),
+      color: pick('color', card.color),
+    };
+  });
+  tarotSaveCards(cards);
+}
+
+// 가장 최근 날짜 탭을 읽어와 화면에 반영합니다.
+// 실패하면 직전에 받아둔 내용(localStorage)이나 기본값이 그대로 쓰입니다.
+async function tarotLoadFromSheet() {
+  if (!TAROT_SHEET_WEBAPP_URL) {
+    return { ok: false, skipped: true, error: 'data.js의 TAROT_SHEET_WEBAPP_URL이 비어 있습니다.' };
+  }
+  try {
+    const res = await tarotJsonp(TAROT_SHEET_WEBAPP_URL, 8000);
+    if (!res || !res.ok) {
+      return { ok: false, error: (res && res.error) || '시트를 읽지 못했습니다.' };
+    }
+    tarotApplySheetData(res.data || {});
+    return { ok: true, sheetName: res.sheetName };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 // 방문/클릭 수 집계는 무료 공개 카운터 API(counterapi.dev)를 사용합니다.
 // 서버가 없는 정적 사이트라 별도 백엔드 없이 숫자만 늘리고 읽어옵니다.
 const TAROT_STATS_NAMESPACE = 'dbrtarot2026biz';
 
-function tarotTodayKey() {
-  const d = new Date();
+function tarotTodayKey(date) {
+  const d = date || new Date();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
   return d.getFullYear() + '-' + mm + '-' + dd;
