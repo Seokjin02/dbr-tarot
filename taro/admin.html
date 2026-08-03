@@ -294,6 +294,7 @@
 
       catSelect.addEventListener('change', () => {
         updateIconPreview(catSelect.value);
+        box.querySelector('.editor-heading .cat-preview').textContent = catSelect.value;
       });
 
       const colorInput = box.querySelector('.f-color');
