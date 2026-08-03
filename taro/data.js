@@ -27,7 +27,7 @@ const TAROT_CATEGORIES = [
   },
   {
     name: 'AI · DT',
-    icon: '<circle cx="50" cy="32" r="6"/><circle cx="22" cy="75" r="6"/><circle cx="78" cy="75" r="6"/><circle cx="50" cy="108" r="6"/><path d="M50 38 L22 69 M50 38 L78 69 M22 81 L50 108 M78 81 L50 108 M22 75 L78 75" stroke-linecap="round"/>',
+    icon: '<path d="M55.2 35.5 A30 30 0 0 1 73 45.7" stroke-linecap="round"/><path d="M78.2 54.7 A30 30 0 0 1 78.2 75.3" stroke-linecap="round"/><path d="M73 84.3 A30 30 0 0 1 55.2 94.5" stroke-linecap="round"/><path d="M44.8 94.5 A30 30 0 0 1 27 84.3" stroke-linecap="round"/><path d="M21.8 75.3 A30 30 0 0 1 21.8 54.7" stroke-linecap="round"/><path d="M27 45.7 A30 30 0 0 1 44.8 35.5" stroke-linecap="round"/><circle cx="50" cy="35" r="5"/><circle cx="76" cy="50" r="5"/><circle cx="76" cy="80" r="5"/><circle cx="50" cy="95" r="5"/><circle cx="24" cy="80" r="5"/><circle cx="24" cy="50" r="5"/><path d="M63.9 35.5 L67.3 40.4 L61.4 39.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M82.5 62.3 L80 67.7 L77.5 62.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M68.6 91.8 L62.7 92.3 L66.1 87.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M36.1 94.5 L32.7 89.6 L38.6 90.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 67.7 L20 62.3 L22.5 67.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M31.4 38.2 L37.3 37.7 L33.9 42.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="42" y="57" width="16" height="16" rx="2"/><path d="M46 57 L46 53 M54 57 L54 53 M46 73 L46 77 M54 73 L54 77 M42 61 L38 61 M42 69 L38 69 M58 61 L62 61 M58 69 L62 69" stroke-linecap="round"/>',
   },
 ];
 
