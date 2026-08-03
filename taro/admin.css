@@ -201,6 +201,7 @@ body{
 .card-editor input[type="text"],
 .card-editor input[type="url"],
 .card-editor input[type="password"],
+.card-editor select,
 .card-editor textarea{
   width:100%;
   padding:10px 12px;
@@ -213,9 +214,13 @@ body{
   resize:vertical;
   transition:border-color .15s ease, box-shadow .15s ease;
 }
+.card-editor select{
+  cursor:pointer;
+}
 .card-editor input[type="text"]:focus,
 .card-editor input[type="url"]:focus,
 .card-editor input[type="password"]:focus,
+.card-editor select:focus,
 .card-editor textarea:focus{
   outline:none;
   border-color:#b0396e;
@@ -261,6 +266,21 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
+}
+.icon-preview{
+  margin-top:10px;
+  height:70px;
+  border-radius:10px;
+  border:1px solid #dcdee3;
+  background:#faf7f8;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.icon-preview-svg{
+  width:34px;
+  height:48px;
+  color:#e88bb0;
 }
 .color-preview-label{
   font-family:'Song Myung', serif;

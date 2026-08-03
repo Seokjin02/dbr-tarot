@@ -2,6 +2,40 @@
 // 지금은 브라우저 localStorage에 저장하지만, 나중에 실제 서버/DB로 옮기게 되면
 // 이 파일의 getCards/saveCards 내부 구현만 바꾸면 되고 dbr_taro.html, admin.html 쪽 코드는 그대로 둘 수 있습니다.
 
+// 카테고리는 이 6개로 고정합니다. 카드 앞면 아이콘은 이미지가 따로 없으면
+// 여기 매핑된 심볼을 자동으로 씁니다 (직접 그린 SVG 선 그림, viewBox 0 0 100 140 기준).
+const TAROT_CATEGORIES = [
+  {
+    name: '경영일반 · 경영전략',
+    icon: '<circle cx="50" cy="65" r="30"/><path d="M50 40 L58 65 L50 90 L42 65 Z" stroke-linejoin="round"/><path d="M50 28 L50 35 M50 95 L50 102 M18 65 L25 65 M75 65 L82 65" stroke-linecap="round"/>',
+  },
+  {
+    name: '인사 · 조직',
+    icon: '<circle cx="50" cy="32" r="10"/><circle cx="26" cy="92" r="10"/><circle cx="74" cy="92" r="10"/><path d="M50 42 L50 60 M50 60 L26 82 M50 60 L74 82" stroke-linecap="round"/>',
+  },
+  {
+    name: '마케팅 · 세일즈',
+    icon: '<path d="M22 68 L58 44 L58 96 L22 82 Z" stroke-linejoin="round"/><path d="M22 68 L22 82 L14 82 L14 68 Z" stroke-linejoin="round"/><path d="M58 54 C74 57 74 83 58 86" stroke-linecap="round"/><path d="M33 84 L38 106" stroke-linecap="round"/>',
+  },
+  {
+    name: '리더십 · 자기계발',
+    icon: '<path d="M22 102 L22 86 L42 86 L42 70 L62 70 L62 54" stroke-linecap="round" stroke-linejoin="round"/><path d="M62 26 L66 39 L80 39 L69 47 L73 60 L62 52 L51 60 L55 47 L44 39 L58 39 Z" stroke-linejoin="round"/>',
+  },
+  {
+    name: '인문',
+    icon: '<path d="M50 38 C40 30 24 30 18 35 L18 98 C24 93 40 93 50 101 C60 93 76 93 82 98 L82 35 C76 30 60 30 50 38 Z" stroke-linejoin="round"/><path d="M50 38 L50 101" stroke-linecap="round"/>',
+  },
+  {
+    name: 'AI · DT',
+    icon: '<circle cx="50" cy="32" r="6"/><circle cx="22" cy="75" r="6"/><circle cx="78" cy="75" r="6"/><circle cx="50" cy="108" r="6"/><path d="M50 38 L22 69 M50 38 L78 69 M22 81 L50 108 M78 81 L50 108 M22 75 L78 75" stroke-linecap="round"/>',
+  },
+];
+
+function tarotCategoryIcon(name) {
+  const found = TAROT_CATEGORIES.find((c) => c.name === name);
+  return found ? found.icon : null;
+}
+
 const TAROT_STORAGE_KEY = 'dbrTarotCards.v1';
 
 const TAROT_DEFAULT_CARDS = [
@@ -26,7 +60,7 @@ const TAROT_DEFAULT_CARDS = [
   {
     id: 2,
     numeral: 'II',
-    category: '리더십',
+    category: '리더십 · 자기계발',
     title: '책임 경영 리더십',
     hook:
       '🤝 성과 압박에 쫓겨 겉보기에 화려한<br>무리수를 두고 있진 않나요?<br><br>' +

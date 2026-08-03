@@ -218,8 +218,18 @@
       box.innerHTML =
         '<div class="editor-heading">카드 ' + card.numeral + ' · <span class="cat-preview">' + card.category + '</span></div>' +
 
-        '<label>카테고리 라벨</label>' +
-        '<input type="text" class="f-cat" value="' + escapeAttr(card.category) + '" />' +
+        '<label>카테고리 (선택한 카테고리에 맞는 아이콘이 자동으로 적용됩니다)</label>' +
+        '<select class="f-cat">' +
+          TAROT_CATEGORIES.map((c) =>
+            '<option value="' + escapeAttr(c.name) + '"' + (c.name === card.category ? ' selected' : '') + '>' + escapeHtml(c.name) + '</option>'
+          ).join('') +
+          (TAROT_CATEGORIES.some((c) => c.name === card.category)
+            ? ''
+            : '<option value="' + escapeAttr(card.category) + '" selected>' + escapeHtml(card.category) + ' (기존값)</option>') +
+        '</select>' +
+        '<div class="icon-preview">' +
+          '<svg class="icon-preview-svg" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="2.5"></svg>' +
+        '</div>' +
 
         '<label>제목</label>' +
         '<input type="text" class="f-title" value="' + escapeAttr(card.title) + '" />' +
@@ -264,6 +274,19 @@
           '<button type="button" class="btn-gold f-save">저장</button>' +
           '<span class="save-status"></span>' +
         '</div>';
+
+      const catSelect = box.querySelector('.f-cat');
+      const iconPreviewSvg = box.querySelector('.icon-preview-svg');
+
+      function updateIconPreview(categoryName){
+        const icon = tarotCategoryIcon(categoryName);
+        iconPreviewSvg.innerHTML = icon || '';
+      }
+      updateIconPreview(catSelect.value);
+
+      catSelect.addEventListener('change', () => {
+        updateIconPreview(catSelect.value);
+      });
 
       const colorInput = box.querySelector('.f-color');
       const colorCode = box.querySelector('.f-color-code');

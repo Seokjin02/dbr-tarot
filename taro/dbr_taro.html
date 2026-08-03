@@ -202,6 +202,8 @@
       const front = cardEl.querySelector('.face-front');
       const sigilSvg = front.querySelector('svg.sigil');
       let sigilImg = front.querySelector('img.sigil-img');
+      const categoryIcon = tarotCategoryIcon(card.category);
+      if (categoryIcon) sigilSvg.innerHTML = categoryIcon;
       if (card.frontImage) {
         if (!sigilImg) {
           sigilImg = document.createElement('img');
@@ -227,6 +229,7 @@
 
       const iconSvg = back.querySelector('svg.card-icon-sm');
       let iconImg = back.querySelector('img.card-icon-img');
+      if (categoryIcon) iconSvg.innerHTML = categoryIcon;
       if (card.backImage) {
         if (!iconImg) {
           iconImg = document.createElement('img');
