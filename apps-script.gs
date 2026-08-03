@@ -103,7 +103,7 @@ function readLatest() {
 // 손으로 만든 기존 탭들은 시작 열이 다를 수 있어, 행마다 key처럼 생긴 칸을 찾고
 // 바로 오른쪽 칸을 값으로 읽습니다.
 function rowsToMap(values) {
-  const KEY = /^(page_title|h1|lede1|lede2|instruction|instruction_sub|footer|card[1-9]_[a-z]+)$/;
+  const KEY = /^(page_title|h1|lede1|lede2|instruction|instruction_sub|footer|instagram_url|openchat_url|card[1-9]_[a-z]+)$/;
   const map = {};
 
   values.forEach(function (row) {

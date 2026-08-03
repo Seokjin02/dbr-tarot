@@ -170,7 +170,7 @@
 </main>
 
 <footer>
-  ✦ DBR 인스타그램, DBR 오픈채팅방 ✦
+  ✦ <a id="footerInstagram" class="footer-link" href="#" target="_blank" rel="noopener noreferrer">DBR 인스타그램</a>, <a id="footerOpenChat" class="footer-link" href="#" target="_blank" rel="noopener noreferrer">DBR 오픈채팅방</a> ✦
 </footer>
 
 <input type="text" id="adminTrigger" autocomplete="off" tabindex="-1" aria-hidden="true">
@@ -183,12 +183,24 @@
     return div.innerHTML.replace(/\n/g, '<br>');
   }
 
+  function setFooterLink(el, url){
+    if (url) {
+      el.href = url;
+      el.classList.remove('is-disabled');
+    } else {
+      el.removeAttribute('href');
+      el.classList.add('is-disabled');
+    }
+  }
+
   function renderSiteContent(){
     const site = tarotGetSite();
     document.getElementById('siteTitle').innerHTML = plainTextToHtml(site.title);
     document.getElementById('siteLede1').innerHTML = plainTextToHtml(site.lede1);
     document.getElementById('siteLede2').innerHTML = plainTextToHtml(site.lede2);
     document.getElementById('siteInstructionSub').textContent = site.instructionSub;
+    setFooterLink(document.getElementById('footerInstagram'), site.instagramUrl);
+    setFooterLink(document.getElementById('footerOpenChat'), site.openChatUrl);
   }
   renderSiteContent();
   tarotHitStat('visits');

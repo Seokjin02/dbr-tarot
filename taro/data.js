@@ -143,6 +143,8 @@ const TAROT_DEFAULT_SITE = {
   lede1: '본격적인 하반기 레이스가 막을 올리는 7월의 첫 시작.\n실전 현장에서 돌파구를 뚫고 승기를 꽂아줄 하반기 돌파의 무기는 무엇일까요?',
   lede2: '정답은 없습니다. 가장 먼저 시선이 멈추는 카드를 딱 하나만 골라보세요.',
   instructionSub: '나를 레벨업 시켜줄 DBR 인사이트가 기다립니다',
+  instagramUrl: '',
+  openChatUrl: '',
 };
 
 function tarotGetSite() {
@@ -235,6 +237,8 @@ function tarotBuildSheetRows(site, cards) {
     ['instruction', TAROT_SHEET_STATIC.instruction, '카드 위 안내 문구 (관리자 페이지에서 수정 불가)'],
     ['instruction_sub', site.instructionSub || '', '안내 문구 아래 작은 글씨'],
     ['footer', TAROT_SHEET_STATIC.footer, '페이지 맨 아래 문구 (관리자 페이지에서 수정 불가)'],
+    ['instagram_url', site.instagramUrl || '', '하단 "DBR 인스타그램" 링크 주소'],
+    ['openchat_url', site.openChatUrl || '', '하단 "DBR 오픈채팅방" 링크 주소'],
   ];
 
   cards.forEach((card, i) => {
@@ -342,6 +346,8 @@ function tarotApplySheetData(map) {
   if (map.lede1) site.lede1 = map.lede1;
   if (map.lede2) site.lede2 = map.lede2;
   if (map.instruction_sub) site.instructionSub = map.instruction_sub;
+  if (map.instagram_url !== undefined) site.instagramUrl = map.instagram_url;
+  if (map.openchat_url !== undefined) site.openChatUrl = map.openchat_url;
   tarotSaveSite(site);
 
   const cards = tarotGetCards().map((card, i) => {

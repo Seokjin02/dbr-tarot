@@ -470,6 +470,20 @@ footer{
   font-size:20px;
   letter-spacing:.05em;
 }
+.footer-link{
+  color:var(--gold-bright);
+  text-decoration:none;
+  transition:opacity .2s ease;
+}
+.footer-link:hover{
+  text-decoration:underline;
+}
+.footer-link.is-disabled{
+  color:inherit;
+  opacity:.6;
+  pointer-events:none;
+  cursor:default;
+}
 #adminTrigger{
   position:fixed;
   top:-100px;

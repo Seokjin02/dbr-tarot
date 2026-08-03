@@ -99,6 +99,12 @@
       <label>안내 하단 문구 ("✦ 카드를 클릭하면 뒤집힙니다 ✦" 아래에 표시됩니다)</label>
       <input type="text" class="f-site-instruction" />
 
+      <label>인스타그램 링크 (맨 아래 "DBR 인스타그램" 글씨에 연결됩니다. 비워두면 클릭 안 됨)</label>
+      <input type="url" class="f-site-instagram" placeholder="https://instagram.com/..." />
+
+      <label>오픈채팅 링크 (맨 아래 "DBR 오픈채팅방" 글씨에 연결됩니다. 비워두면 클릭 안 됨)</label>
+      <input type="url" class="f-site-openchat" placeholder="https://open.kakao.com/..." />
+
       <div class="editor-footer">
         <button type="button" class="btn-gold" id="saveSiteBtn">저장</button>
         <span class="save-status" id="siteStatus"></span>
@@ -153,6 +159,8 @@
   const siteLede1Input = document.querySelector('.f-site-lede1');
   const siteLede2Input = document.querySelector('.f-site-lede2');
   const siteInstructionInput = document.querySelector('.f-site-instruction');
+  const siteInstagramInput = document.querySelector('.f-site-instagram');
+  const siteOpenChatInput = document.querySelector('.f-site-openchat');
   const saveSiteBtn = document.getElementById('saveSiteBtn');
   const siteStatus = document.getElementById('siteStatus');
   const refreshStatsBtn = document.getElementById('refreshStatsBtn');
@@ -387,6 +395,8 @@
     siteLede1Input.value = site.lede1;
     siteLede2Input.value = site.lede2;
     siteInstructionInput.value = site.instructionSub;
+    siteInstagramInput.value = site.instagramUrl || '';
+    siteOpenChatInput.value = site.openChatUrl || '';
   }
 
   saveSiteBtn.addEventListener('click', () => {
@@ -395,6 +405,8 @@
       lede1: siteLede1Input.value,
       lede2: siteLede2Input.value,
       instructionSub: siteInstructionInput.value.trim(),
+      instagramUrl: siteInstagramInput.value.trim(),
+      openChatUrl: siteOpenChatInput.value.trim(),
     });
     syncSheetAndReport(siteStatus, '저장되었습니다.');
     setTimeout(() => { siteStatus.textContent = ''; }, 8000);
