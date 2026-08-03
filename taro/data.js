@@ -11,7 +11,7 @@ const TAROT_CATEGORIES = [
   },
   {
     name: '인사 · 조직',
-    icon: '<circle cx="50" cy="32" r="10"/><circle cx="26" cy="92" r="10"/><circle cx="74" cy="92" r="10"/><path d="M50 42 L50 60 M50 60 L26 82 M50 60 L74 82" stroke-linecap="round"/>',
+    icon: '<circle cx="50" cy="24" r="10"/><circle cx="26" cy="92" r="9"/><circle cx="74" cy="92" r="9"/><circle cx="50" cy="60" r="6"/><path d="M50 34 L50 60 M50 60 L26 83 M50 60 L74 83" stroke-linecap="round"/>',
   },
   {
     name: '마케팅 · 세일즈',
@@ -19,7 +19,7 @@ const TAROT_CATEGORIES = [
   },
   {
     name: '리더십 · 자기계발',
-    icon: '<path d="M22 102 L22 86 L42 86 L42 70 L62 70 L62 54" stroke-linecap="round" stroke-linejoin="round"/><path d="M62 26 L66 39 L80 39 L69 47 L73 60 L62 52 L51 60 L55 47 L44 39 L58 39 Z" stroke-linejoin="round"/>',
+    icon: '<path d="M18 106 L18 90 L34 90 L34 74 L50 74 L50 58 L66 58 L66 42" stroke-linecap="round" stroke-linejoin="round"/><path d="M66 20 L69.3 29.5 L79.3 29.7 L71.3 35.7 L74.2 45.3 L66 39.6 L57.8 45.3 L60.7 35.7 L52.7 29.7 L62.7 29.5 Z" stroke-linejoin="round"/>',
   },
   {
     name: '인문',
