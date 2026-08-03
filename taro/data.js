@@ -55,7 +55,7 @@ const TAROT_DEFAULT_CARDS = [
     dbrLink: 'https://dbr.donga.com/article/view/1201/article_no/12146',
     color: '#5c2a63',
     frontImage: '',
-    backImage: '',
+    backBgImage: '',
   },
   {
     id: 2,
@@ -73,7 +73,7 @@ const TAROT_DEFAULT_CARDS = [
     dbrLink: 'https://dbr.donga.com/article/view/1306/article_no/12155',
     color: '#1f3a52',
     frontImage: '',
-    backImage: '',
+    backBgImage: '',
   },
   {
     id: 3,
@@ -90,7 +90,7 @@ const TAROT_DEFAULT_CARDS = [
     dbrLink: 'https://dbr.donga.com/article/view/1904/article_no/12134',
     color: '#5a3a1d',
     frontImage: '',
-    backImage: '',
+    backBgImage: '',
   },
 ];
 
@@ -103,7 +103,7 @@ function tarotGetCards() {
         // 이미지 필드가 추가되기 전에 저장된 데이터도 깨지지 않도록 기본값을 채워줍니다.
         return parsed.map((card) => {
           const fallback = TAROT_DEFAULT_CARDS.find((d) => d.id === card.id) || {};
-          return { frontImage: '', backImage: '', ...fallback, ...card };
+          return { frontImage: '', backBgImage: '', ...fallback, ...card };
         });
       }
     }
@@ -221,7 +221,7 @@ function tarotHtmlToText(html) {
 function tarotImageNote(card) {
   const parts = [];
   if (card.frontImage) parts.push('앞면 있음');
-  if (card.backImage) parts.push('뒷면 있음');
+  if (card.backBgImage) parts.push('뒷면 배경 있음');
   return parts.length ? parts.join(', ') : '없음';
 }
 

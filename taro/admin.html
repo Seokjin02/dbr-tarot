@@ -261,12 +261,12 @@
           '</div>' +
         '</div>' +
 
-        '<label>뒷면 이미지 (카드 내용 상단 작은 아이콘 자리에 표시됩니다)</label>' +
+        '<label>뒷면 배경 이미지 (카드 뒤집었을 때 전체 배경으로 쓰입니다. 안 넣으면 기존 색상 그라데이션 사용)</label>' +
         '<div class="image-field">' +
-          '<div class="image-preview f-back-preview"' + (card.backImage ? ' style="background-image:url(\'' + card.backImage + '\')"' : '') + '></div>' +
+          '<div class="image-preview f-back-bg-preview"' + (card.backBgImage ? ' style="background-image:url(\'' + card.backBgImage + '\')"' : '') + '></div>' +
           '<div class="image-field-actions">' +
-            '<input type="file" accept="image/*" class="f-back-input" />' +
-            '<button type="button" class="btn-ghost f-back-clear">이미지 제거</button>' +
+            '<input type="file" accept="image/*" class="f-back-bg-input" />' +
+            '<button type="button" class="btn-ghost f-back-bg-clear">이미지 제거</button>' +
           '</div>' +
         '</div>' +
 
@@ -316,7 +316,7 @@
       });
 
       let pendingFrontImage = card.frontImage || '';
-      let pendingBackImage = card.backImage || '';
+      let pendingBackBgImage = card.backBgImage || '';
 
       function wireImageField(inputSelector, previewSelector, clearSelector, onChange) {
         const input = box.querySelector(inputSelector);
@@ -342,7 +342,7 @@
       }
 
       wireImageField('.f-front-input', '.f-front-preview', '.f-front-clear', (val) => { pendingFrontImage = val; });
-      wireImageField('.f-back-input', '.f-back-preview', '.f-back-clear', (val) => { pendingBackImage = val; });
+      wireImageField('.f-back-bg-input', '.f-back-bg-preview', '.f-back-bg-clear', (val) => { pendingBackBgImage = val; });
 
       const status = box.querySelector('.save-status');
       box.querySelector('.f-save').addEventListener('click', () => {
@@ -357,7 +357,7 @@
           dbrLink: box.querySelector('.f-dbr').value.trim(),
           color: colorInput.value,
           frontImage: pendingFrontImage,
-          backImage: pendingBackImage,
+          backBgImage: pendingBackBgImage,
         };
         try {
           tarotSaveCards(allCards);

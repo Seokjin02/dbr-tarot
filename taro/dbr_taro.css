@@ -378,15 +378,6 @@ main{
   color:var(--gold);
   opacity:.9;
 }
-.card-icon-img{
-  display:block;
-  width:44px;
-  height:44px;
-  margin:0 auto 10px;
-  object-fit:cover;
-  border-radius:50%;
-  border:1px solid rgba(232,139,176,.5);
-}
 .hook{
   font-size:12.5px;
   color:var(--ink-dim);
@@ -428,6 +419,46 @@ main{
 .dbr-link:hover{
   transform:translateY(-2px);
   box-shadow:0 8px 20px rgba(232,139,176,.35);
+}
+
+/* 뒷면 배경 이미지를 쓰면 이미지 안에 제목·본문이 이미 들어있다고 보고,
+   중복 표시를 막기 위해 텍스트 요소는 숨기고 DBR 링크만 하단에 남깁니다.
+   이미지는 카드 전체를 덮지 않고 위쪽 영역만 채워서, 버튼 자리와 겹치거나
+   이미지 내용이 가려지는 일이 없게 합니다. */
+.back-bg-fill{
+  display:none;
+}
+.face-back.has-bg-image .card-numeral,
+.face-back.has-bg-image .card-cat,
+.face-back.has-bg-image .card-title,
+.face-back.has-bg-image .card-icon-sm,
+.face-back.has-bg-image .hook,
+.face-back.has-bg-image .body-text{
+  display:none;
+}
+.face-back.has-bg-image{
+  padding:4px 4px 6px;
+}
+.face-back.has-bg-image .back-bg-fill{
+  display:block;
+  flex:1;
+  min-height:0;
+  border-radius:8px;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  margin-bottom:4px;
+}
+.face-back.has-bg-image .dbr-link{
+  margin-top:0;
+}
+.stage-card .face-back.has-bg-image{
+  padding:6px 6px 10px;
+}
+.face-back.has-bg-image .dbr-link{
+  position:relative;
+  z-index:1;
+  margin-top:auto;
 }
 
 footer{
@@ -746,11 +777,6 @@ header{
 .stage-card .card-icon-sm{
   width:34px;
   height:34px;
-  margin:2px auto 12px;
-}
-.stage-card .card-icon-img{
-  width:54px;
-  height:54px;
   margin:2px auto 12px;
 }
 .stage-card .card-title{
