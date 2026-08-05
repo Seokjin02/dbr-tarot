@@ -21,7 +21,6 @@
     <input type="password" id="passwordInput" placeholder="비밀번호를 입력하세요" />
     <p class="login-error" id="loginError"></p>
     <button type="button" class="btn-gold" id="loginBtn">로그인</button>
-    <button type="button" class="btn-ghost login-reset" id="resetPasswordBtn">비밀번호를 잊으셨나요? (1234로 초기화)</button>
     <a class="btn-ghost login-back" href="dbr_taro.html">메인으로 돌아가기</a>
   </div>
 
@@ -497,15 +496,6 @@
   loginBtn.addEventListener('click', doLogin);
   passwordInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') doLogin();
-  });
-
-  const resetPasswordBtn = document.getElementById('resetPasswordBtn');
-  resetPasswordBtn.addEventListener('click', () => {
-    if (confirm('비밀번호를 1234로 초기화할까요?')) {
-      tarotResetPassword();
-      loginError.style.color = '#1e7e34';
-      loginError.textContent = '비밀번호가 1234로 초기화되었습니다.';
-    }
   });
 
   function doLogin(){

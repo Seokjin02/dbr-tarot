@@ -85,12 +85,6 @@ body{
   min-height:1.2em;
   margin-bottom:8px;
 }
-.login-reset{
-  display:block;
-  width:100%;
-  margin-top:10px;
-  font-size:.86rem;
-}
 .login-back{
   display:inline-block;
   margin-top:14px;

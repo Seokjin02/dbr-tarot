@@ -132,10 +132,6 @@ function tarotSavePassword(newPassword) {
   localStorage.setItem(TAROT_PASSWORD_KEY, newPassword);
 }
 
-function tarotResetPassword() {
-  localStorage.removeItem(TAROT_PASSWORD_KEY);
-}
-
 const TAROT_SITE_STORAGE_KEY = 'dbrTarotSite.v1';
 
 const TAROT_DEFAULT_SITE = {
