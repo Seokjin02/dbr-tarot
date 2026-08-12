@@ -173,6 +173,13 @@ function statsIncrement(key) {
     const data = lastRow > 1 ? sheet.getRange(2, 1, lastRow - 1, 5).getValues() : [];
     const wk = statsWeekKey();
 
+    // 모든 항목의 "지금까지 누적" 값을 미리 모아둡니다 (일별통계에 스냅샷으로 남기기 위해).
+    const totalsMap = {};
+    STATS_KEY_ORDER.forEach(function (k) {
+      const row = data.find(function (r) { return r[STATS_COL.KEY - 1] === k; });
+      totalsMap[k] = row ? (Number(row[STATS_COL.TOTAL - 1]) || 0) : 0;
+    });
+
     let rowIndex = -1;
     for (let i = 0; i < data.length; i++) {
       if (data[i][STATS_COL.KEY - 1] === key) { rowIndex = i; break; }
@@ -181,6 +188,7 @@ function statsIncrement(key) {
     if (rowIndex === -1) {
       // 미리 정의되지 않은 키는 맨 아래에 새로 추가합니다.
       sheet.appendRow([key, STATS_KEY_LABELS[key] || key, 1, 1, wk]);
+      totalsMap[key] = 1;
     } else {
       const rowNum = rowIndex + 2;
       const total = (Number(data[rowIndex][STATS_COL.TOTAL - 1]) || 0) + 1;
@@ -193,17 +201,30 @@ function statsIncrement(key) {
         weekCount = 1;
       }
       sheet.getRange(rowNum, STATS_COL.WEEK, 1, 3).setValues([[weekCount, total, weekKey]]);
+      totalsMap[key] = total;
     }
 
-    statsDailyIncrement(key);
+    statsDailyIncrement(key, totalsMap);
   } finally {
     lock.releaseLock();
   }
 }
 
-// 날짜별 집계. "_stats_daily" 탭에 날짜(행) x 항목(열) 표로 쌓입니다.
+// 날짜별 집계. "일별통계" 탭에 날짜(행) x 항목(열) 표로 쌓입니다.
+// 항목마다 그날의 "신규" 건수와, 그 시점까지의 "누적" 스냅샷을 함께 남깁니다.
 const STATS_DAILY_SHEET_NAME = '일별통계';
 const STATS_DAILY_SHEET_LEGACY_NAMES = ['_stats_daily']; // 예전 이름. 있으면 데이터 유지한 채 새 이름으로 바꿉니다.
+
+// 일별통계 표에서만 쓰는 짧은 이름 ("이번 주" 접두어를 빼서 날짜별 표와 헷갈리지 않게 합니다).
+const STATS_KEY_LABELS_PLAIN = {
+  visits: '방문 수',
+  card1: '카드 I 클릭',
+  card2: '카드 II 클릭',
+  card3: '카드 III 클릭',
+  dbr1: 'DBR 아티클 클릭 (I)',
+  dbr2: 'DBR 아티클 클릭 (II)',
+  dbr3: 'DBR 아티클 클릭 (III)',
+};
 
 function statsDailyDateString(value) {
   if (value instanceof Date) {
@@ -231,7 +252,10 @@ function getStatsDailySheet() {
     }
   }
 
-  const needsInit = !sheet || String(sheet.getRange(1, 1).getValue()) !== '날짜';
+  const expectedCols = 1 + STATS_KEY_ORDER.length * 2; // 날짜 + 신규 n개 + 누적 n개
+  const needsInit = !sheet
+    || String(sheet.getRange(1, 1).getValue()) !== '날짜'
+    || sheet.getLastColumn() < expectedCols;
 
   if (!sheet) {
     sheet = ss.insertSheet(STATS_DAILY_SHEET_NAME);
@@ -239,11 +263,18 @@ function getStatsDailySheet() {
 
   if (needsInit) {
     sheet.clear();
-    const header = ['날짜'].concat(STATS_KEY_ORDER.map(function (key) {
-      return STATS_KEY_LABELS[key] || key;
-    }));
+    const n = STATS_KEY_ORDER.length;
+    const newLabels = STATS_KEY_ORDER.map(function (key) {
+      return (STATS_KEY_LABELS_PLAIN[key] || key) + ' (신규)';
+    });
+    const cumLabels = STATS_KEY_ORDER.map(function (key) {
+      return (STATS_KEY_LABELS_PLAIN[key] || key) + ' (누적)';
+    });
+    const header = ['날짜'].concat(newLabels).concat(cumLabels);
     sheet.getRange(1, 1, 1, header.length).setValues([header]);
-    sheet.getRange(1, 1, 1, header.length).setFontWeight('bold').setBackground('#efe7d4');
+    sheet.getRange(1, 1, 1, header.length).setFontWeight('bold');
+    sheet.getRange(1, 1, 1, 1 + n).setBackground('#efe7d4');
+    sheet.getRange(1, 2 + n, 1, n).setBackground('#e4ecf7');
     sheet.setFrozenRows(1);
     sheet.setFrozenColumns(1);
     sheet.setColumnWidth(1, 100);
@@ -253,14 +284,17 @@ function getStatsDailySheet() {
   return sheet;
 }
 
-function statsDailyIncrement(key) {
+// key: 이번에 발생한 이벤트. totalsMap: 7개 항목 모두의 "지금까지 누적" 값(이 이벤트 반영 후 기준).
+function statsDailyIncrement(key, totalsMap) {
   const colIndex = STATS_KEY_ORDER.indexOf(key);
   if (colIndex === -1) return; // 미리 정의된 7개 항목이 아니면 날짜별 표는 건너뜁니다.
 
   const sheet = getStatsDailySheet();
   const today = statsTodayDate();
   const todayStr = statsDailyDateString(today);
-  const col = colIndex + 2; // A열(날짜) 다음부터 STATS_KEY_ORDER 순서
+  const n = STATS_KEY_ORDER.length;
+  const newCol = colIndex + 2; // A열(날짜) 다음부터 "신규" 열들
+  const cumStartCol = 2 + n; // 그 다음부터 "누적" 열들
 
   const lastRow = sheet.getLastRow();
   let rowNum = -1;
@@ -272,13 +306,19 @@ function statsDailyIncrement(key) {
   }
 
   if (rowNum === -1) {
-    const newRow = [today].concat(STATS_KEY_ORDER.map(function () { return 0; }));
+    const newRow = [today]
+      .concat(STATS_KEY_ORDER.map(function () { return 0; }))
+      .concat(STATS_KEY_ORDER.map(function (k) { return totalsMap[k] || 0; }));
     sheet.appendRow(newRow);
     rowNum = sheet.getLastRow();
   }
 
-  const cell = sheet.getRange(rowNum, col);
-  cell.setValue((Number(cell.getValue()) || 0) + 1);
+  const newCell = sheet.getRange(rowNum, newCol);
+  newCell.setValue((Number(newCell.getValue()) || 0) + 1);
+
+  // 누적 열은 매번 "지금까지의 최신 총계"로 전부 덮어써서, 그날 활동이 없던 항목도 스냅샷이 비지 않게 합니다.
+  const cumValues = STATS_KEY_ORDER.map(function (k) { return totalsMap[k] || 0; });
+  sheet.getRange(rowNum, cumStartCol, 1, n).setValues([cumValues]);
 }
 
 // 관리자 페이지가 한 번에 모든 키의 이번 주/누적 값을 읽어갑니다.
