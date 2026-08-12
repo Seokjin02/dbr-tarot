@@ -268,9 +268,6 @@ main{
   width:46%;
   color:var(--gold);
   opacity:.92;
-  filter:drop-shadow(0 0 10px rgba(163,116,217,.35));
-  -webkit-transform:translateZ(0);
-  transform:translateZ(0);
 }
 .face-front .sigil-img{
   width:62%;
@@ -278,7 +275,6 @@ main{
   object-fit:cover;
   border-radius:50%;
   border:1px solid rgba(163,116,217,.5);
-  filter:drop-shadow(0 0 14px rgba(163,116,217,.3));
   -webkit-transform:translateZ(0);
   transform:translateZ(0);
 }
@@ -369,11 +365,7 @@ main{
   color:var(--gold-bright);
 }
 .card-icon-sm{
-  width:34px;
-  height:34px;
-  margin:0 auto 10px;
-  color:var(--gold);
-  opacity:.9;
+  display:none !important;
 }
 .hook{
   font-size:12.5px;
