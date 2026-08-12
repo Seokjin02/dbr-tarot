@@ -93,11 +93,27 @@ function doGet(e) {
 /**
  * 방문/클릭 카운터. counterapi.dev(무료 익명 카운터)가 v1을 종료하면서
  * 이 시트를 그대로 카운터 저장소로 씁니다. "_stats"라는 별도 탭에 키마다
- * 한 행(key, total, weekKey, weekCount)을 두고, 요청이 올 때마다 그 행만 갱신합니다.
+ * 한 행을 두고, 요청이 올 때마다 그 행만 갱신합니다.
+ * A열(key)은 코드가 찾아가는 내부용이라 숨겨져 있고, 나머지 열이 사람이 보는 값입니다.
  */
 const STATS_SHEET_NAME = '_stats';
 const STATS_KEY_PATTERN = /^[a-z0-9]{1,30}$/;
 const STATS_TIMEZONE = 'Asia/Seoul';
+
+// 관리자 페이지 통계 카드와 같은 순서·이름을 씁니다.
+const STATS_KEY_ORDER = ['visits', 'card1', 'card2', 'card3', 'dbr1', 'dbr2', 'dbr3'];
+const STATS_KEY_LABELS = {
+  visits: '이번 주 방문 수',
+  card1: '카드 I 클릭',
+  card2: '카드 II 클릭',
+  card3: '카드 III 클릭',
+  dbr1: 'DBR 아티클 클릭 (I)',
+  dbr2: 'DBR 아티클 클릭 (II)',
+  dbr3: 'DBR 아티클 클릭 (III)',
+};
+
+// 시트 칸 배치: A=key(내부용, 숨김) B=항목 C=이번 주 D=누적 E=마지막 갱신 주(내부용)
+const STATS_COL = { KEY: 1, LABEL: 2, WEEK: 3, TOTAL: 4, WEEKKEY: 5 };
 
 // 그 주 월요일 날짜(YYYY-MM-DD)를 주간 키로 씁니다. 월요일이 되면 자동으로 새로 시작됩니다.
 function statsWeekKey(date) {
@@ -110,12 +126,28 @@ function statsWeekKey(date) {
 function getStatsSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sheet = ss.getSheetByName(STATS_SHEET_NAME);
+  const needsInit = !sheet || String(sheet.getRange(1, STATS_COL.LABEL).getValue()) !== '항목';
+
   if (!sheet) {
     sheet = ss.insertSheet(STATS_SHEET_NAME);
-    sheet.getRange(1, 1, 1, 4).setValues([['key', 'total', 'weekKey', 'weekCount']]);
-    sheet.setFrozenRows(1);
-    sheet.hideSheet();
   }
+
+  if (needsInit) {
+    sheet.clear();
+    sheet.getRange(1, 1, 1, 5).setValues([['key', '항목', '이번 주', '누적', '마지막 갱신 주']]);
+    sheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#efe7d4');
+    const rows = STATS_KEY_ORDER.map(function (key) {
+      return [key, STATS_KEY_LABELS[key] || key, 0, 0, ''];
+    });
+    sheet.getRange(2, 1, rows.length, 5).setValues(rows);
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(2, 220);
+    sheet.setColumnWidth(3, 90);
+    sheet.setColumnWidth(4, 90);
+    sheet.setColumnWidth(5, 140);
+    try { sheet.hideColumns(STATS_COL.KEY); } catch (err) { /* 이미 숨겨져 있으면 무시 */ }
+  }
+
   return sheet;
 }
 
@@ -128,29 +160,32 @@ function statsIncrement(key) {
   lock.waitLock(10000);
   try {
     const sheet = getStatsSheet();
-    const data = sheet.getDataRange().getValues();
+    const lastRow = sheet.getLastRow();
+    const data = lastRow > 1 ? sheet.getRange(2, 1, lastRow - 1, 5).getValues() : [];
     const wk = statsWeekKey();
 
     let rowIndex = -1;
-    for (let i = 1; i < data.length; i++) {
-      if (data[i][0] === key) { rowIndex = i; break; }
+    for (let i = 0; i < data.length; i++) {
+      if (data[i][STATS_COL.KEY - 1] === key) { rowIndex = i; break; }
     }
 
     if (rowIndex === -1) {
-      sheet.appendRow([key, 1, wk, 1]);
+      // 미리 정의되지 않은 키는 맨 아래에 새로 추가합니다.
+      sheet.appendRow([key, STATS_KEY_LABELS[key] || key, 1, 1, wk]);
       return;
     }
 
-    const total = (Number(data[rowIndex][1]) || 0) + 1;
-    let weekKey = data[rowIndex][2];
-    let weekCount = Number(data[rowIndex][3]) || 0;
+    const rowNum = rowIndex + 2;
+    const total = (Number(data[rowIndex][STATS_COL.TOTAL - 1]) || 0) + 1;
+    let weekKey = data[rowIndex][STATS_COL.WEEKKEY - 1];
+    let weekCount = Number(data[rowIndex][STATS_COL.WEEK - 1]) || 0;
     if (weekKey === wk) {
       weekCount += 1;
     } else {
       weekKey = wk;
       weekCount = 1;
     }
-    sheet.getRange(rowIndex + 1, 2, 1, 3).setValues([[total, weekKey, weekCount]]);
+    sheet.getRange(rowNum, STATS_COL.WEEK, 1, 3).setValues([[weekCount, total, weekKey]]);
   } finally {
     lock.releaseLock();
   }
@@ -164,14 +199,17 @@ function statsRead() {
   const data = {};
 
   if (sheet) {
-    const values = sheet.getDataRange().getValues();
-    for (let i = 1; i < values.length; i++) {
-      const key = values[i][0];
-      if (!key) continue;
-      const total = Number(values[i][1]) || 0;
-      const weekKey = values[i][2];
-      const weekCount = weekKey === wk ? (Number(values[i][3]) || 0) : 0;
-      data[key] = { total: total, week: weekCount };
+    const lastRow = sheet.getLastRow();
+    if (lastRow > 1) {
+      const values = sheet.getRange(2, 1, lastRow - 1, 5).getValues();
+      values.forEach(function (row) {
+        const key = row[STATS_COL.KEY - 1];
+        if (!key) return;
+        const total = Number(row[STATS_COL.TOTAL - 1]) || 0;
+        const weekKey = row[STATS_COL.WEEKKEY - 1];
+        const weekCount = weekKey === wk ? (Number(row[STATS_COL.WEEK - 1]) || 0) : 0;
+        data[key] = { total: total, week: weekCount };
+      });
     }
   }
 
