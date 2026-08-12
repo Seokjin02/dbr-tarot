@@ -730,7 +730,12 @@ header{
   transition:top 1.05s cubic-bezier(.22,.68,0,1.05),
              left 1.05s cubic-bezier(.22,.68,0,1.05),
              width 1.05s cubic-bezier(.22,.68,0,1.05),
-             height 1.05s cubic-bezier(.22,.68,0,1.05);
+             height 1.05s cubic-bezier(.22,.68,0,1.05),
+             opacity .5s ease .55s;
+}
+/* 닫을 때는 뒷면을 그대로 유지한 채 서서히 사라지게 합니다 (앞면으로 되돌리지 않음) */
+.stage-card.stage-card-closing{
+  opacity:0;
 }
 .stage-card .card{
   width:100%;
