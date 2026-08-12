@@ -74,11 +74,108 @@ function doPost(e) {
  */
 function doGet(e) {
   const callback = (e && e.parameter && e.parameter.callback) || '';
+  const action = (e && e.parameter && e.parameter.action) || '';
   try {
+    if (action === 'hit') {
+      const key = String((e.parameter && e.parameter.key) || '').trim();
+      statsIncrement(key);
+      return respond({ ok: true }, callback);
+    }
+    if (action === 'stats') {
+      return respond(Object.assign({ ok: true }, statsRead()), callback);
+    }
     return respond(readLatest(), callback);
   } catch (err) {
     return respond({ ok: false, error: String(err) }, callback);
   }
+}
+
+/**
+ * 방문/클릭 카운터. counterapi.dev(무료 익명 카운터)가 v1을 종료하면서
+ * 이 시트를 그대로 카운터 저장소로 씁니다. "_stats"라는 별도 탭에 키마다
+ * 한 행(key, total, weekKey, weekCount)을 두고, 요청이 올 때마다 그 행만 갱신합니다.
+ */
+const STATS_SHEET_NAME = '_stats';
+const STATS_KEY_PATTERN = /^[a-z0-9]{1,30}$/;
+const STATS_TIMEZONE = 'Asia/Seoul';
+
+// 그 주 월요일 날짜(YYYY-MM-DD)를 주간 키로 씁니다. 월요일이 되면 자동으로 새로 시작됩니다.
+function statsWeekKey(date) {
+  const d = date ? new Date(date) : new Date();
+  const day = (d.getDay() + 6) % 7; // 월=0 … 일=6
+  d.setDate(d.getDate() - day);
+  return 'w' + Utilities.formatDate(d, STATS_TIMEZONE, 'yyyy-MM-dd');
+}
+
+function getStatsSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(STATS_SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(STATS_SHEET_NAME);
+    sheet.getRange(1, 1, 1, 4).setValues([['key', 'total', 'weekKey', 'weekCount']]);
+    sheet.setFrozenRows(1);
+    sheet.hideSheet();
+  }
+  return sheet;
+}
+
+// 동시에 여러 방문자가 클릭해도 카운트가 씹히지 않도록 잠금을 걸고 한 번에 하나씩 처리합니다.
+function statsIncrement(key) {
+  if (!STATS_KEY_PATTERN.test(key)) {
+    throw new Error('허용되지 않는 통계 키입니다: ' + key);
+  }
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sheet = getStatsSheet();
+    const data = sheet.getDataRange().getValues();
+    const wk = statsWeekKey();
+
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === key) { rowIndex = i; break; }
+    }
+
+    if (rowIndex === -1) {
+      sheet.appendRow([key, 1, wk, 1]);
+      return;
+    }
+
+    const total = (Number(data[rowIndex][1]) || 0) + 1;
+    let weekKey = data[rowIndex][2];
+    let weekCount = Number(data[rowIndex][3]) || 0;
+    if (weekKey === wk) {
+      weekCount += 1;
+    } else {
+      weekKey = wk;
+      weekCount = 1;
+    }
+    sheet.getRange(rowIndex + 1, 2, 1, 3).setValues([[total, weekKey, weekCount]]);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// 관리자 페이지가 한 번에 모든 키의 이번 주/누적 값을 읽어갑니다.
+function statsRead() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(STATS_SHEET_NAME);
+  const wk = statsWeekKey();
+  const data = {};
+
+  if (sheet) {
+    const values = sheet.getDataRange().getValues();
+    for (let i = 1; i < values.length; i++) {
+      const key = values[i][0];
+      if (!key) continue;
+      const total = Number(values[i][1]) || 0;
+      const weekKey = values[i][2];
+      const weekCount = weekKey === wk ? (Number(values[i][3]) || 0) : 0;
+      data[key] = { total: total, week: weekCount };
+    }
+  }
+
+  return { weekKey: wk, data: data };
 }
 
 function readLatest() {

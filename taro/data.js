@@ -383,10 +383,6 @@ async function tarotLoadFromSheet() {
   }
 }
 
-// 방문/클릭 수 집계는 무료 공개 카운터 API(counterapi.dev)를 사용합니다.
-// 서버가 없는 정적 사이트라 별도 백엔드 없이 숫자만 늘리고 읽어옵니다.
-const TAROT_STATS_NAMESPACE = 'dbrtarot2026biz';
-
 function tarotTodayKey(date) {
   const d = date || new Date();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -394,28 +390,29 @@ function tarotTodayKey(date) {
   return d.getFullYear() + '-' + mm + '-' + dd;
 }
 
-// 주간 집계는 월요일에 새로 시작합니다.
-// 그 주 월요일 날짜를 키로 쓰기 때문에, 월요일이 되면 자동으로 새 카운터가 잡히고
-// 화면상으로는 0부터 다시 세는 것처럼 보입니다. (지난주 숫자도 지워지지 않고 남습니다)
-function tarotWeekKey(date) {
-  const d = new Date(date || new Date());
-  // getDay()는 일=0, 월=1 … 토=6. 이번 주 월요일까지 되돌립니다. (일요일이면 6일 전)
-  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  return 'w' + tarotTodayKey(d);
-}
-
+// 방문/클릭 수는 콘텐츠와 같은 구글 시트("_stats" 탭)에 기록합니다.
+// (예전엔 counterapi.dev라는 무료 익명 카운터를 썼지만 v1이 종료되어 더 이상 못 씁니다.)
+// 집계 요청만 보내고 응답은 읽지 않으므로 CORS로 막혀도 상관없습니다 —
+// Apps Script는 /exec가 호출되는 시점에 이미 실행되고 시트에 반영됩니다.
 function tarotHitStat(key) {
-  fetch('https://api.counterapi.dev/v1/' + TAROT_STATS_NAMESPACE + '/' + key + '/up').catch(() => {});
-  fetch('https://api.counterapi.dev/v1/' + TAROT_STATS_NAMESPACE + '/' + key + '-' + tarotWeekKey() + '/up').catch(() => {});
+  if (!TAROT_SHEET_WEBAPP_URL) return;
+  const url = TAROT_SHEET_WEBAPP_URL
+    + (TAROT_SHEET_WEBAPP_URL.indexOf('?') === -1 ? '?' : '&')
+    + 'action=hit&key=' + encodeURIComponent(key);
+  fetch(url).catch(() => {});
 }
 
-async function tarotGetStat(key) {
+// 관리자 페이지에서 이번 주/누적 값을 한 번에 읽어옵니다. (읽기라 JSONP로 불러옵니다)
+async function tarotGetStats() {
+  if (!TAROT_SHEET_WEBAPP_URL) return { ok: false, error: 'data.js의 TAROT_SHEET_WEBAPP_URL이 비어 있습니다.' };
+  const url = TAROT_SHEET_WEBAPP_URL
+    + (TAROT_SHEET_WEBAPP_URL.indexOf('?') === -1 ? '?' : '&')
+    + 'action=stats';
   try {
-    const res = await fetch('https://api.counterapi.dev/v1/' + TAROT_STATS_NAMESPACE + '/' + key + '/');
-    if (!res.ok) return 0;
-    const data = await res.json();
-    return data.count || 0;
+    const res = await tarotJsonp(url, 8000);
+    if (!res || !res.ok) return { ok: false, error: (res && res.error) || '통계를 읽지 못했습니다.' };
+    return res;
   } catch (err) {
-    return null;
+    return { ok: false, error: err.message };
   }
 }

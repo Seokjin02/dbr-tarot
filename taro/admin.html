@@ -452,24 +452,19 @@
     setTimeout(() => { sheetStatus.textContent = ''; }, 8000);
   });
 
-  async function loadStatPair(key){
-    const [week, total] = await Promise.all([
-      tarotGetStat(key + '-' + tarotWeekKey()),
-      tarotGetStat(key),
-    ]);
-    return { week, total };
-  }
-
   async function loadStats(){
     statsStatus.textContent = '불러오는 중...';
     const keys = ['visits', 'card1', 'card2', 'card3', 'dbr1', 'dbr2', 'dbr3'];
     const ids = ['statVisits', 'statCard1', 'statCard2', 'statCard3', 'statDbr1', 'statDbr2', 'statDbr3'];
-    const results = await Promise.all(keys.map(loadStatPair));
-    results.forEach((r, i) => {
-      document.getElementById(ids[i]).textContent = r.week === null ? '오류' : r.week;
-      document.getElementById(ids[i] + 'Total').textContent = r.total === null ? '' : '누적 ' + r.total;
+    const res = await tarotGetStats();
+    const data = (res.ok && res.data) || {};
+    keys.forEach((key, i) => {
+      const entry = data[key];
+      document.getElementById(ids[i]).textContent = res.ok ? (entry ? entry.week : 0) : '오류';
+      document.getElementById(ids[i] + 'Total').textContent = res.ok ? '누적 ' + (entry ? entry.total : 0) : '';
     });
-    statsStatus.textContent = '';
+    statsStatus.textContent = res.ok ? '' : (res.error || '통계를 불러오지 못했습니다.');
+    if (!res.ok) setTimeout(() => { statsStatus.textContent = ''; }, 6000);
   }
   refreshStatsBtn.addEventListener('click', loadStats);
 
