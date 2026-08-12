@@ -192,9 +192,9 @@ function statsIncrement(key) {
 }
 
 // 관리자 페이지가 한 번에 모든 키의 이번 주/누적 값을 읽어갑니다.
+// getStatsSheet()를 거치므로, 옛날 형식 시트가 남아 있으면 여기서도 새 형식으로 정리됩니다.
 function statsRead() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(STATS_SHEET_NAME);
+  const sheet = getStatsSheet();
   const wk = statsWeekKey();
   const data = {};
 
