@@ -298,17 +298,6 @@ main{
 .corner.tr{top:13px; right:13px;}
 .corner.bl{bottom:13px; left:13px;}
 .corner.br{bottom:13px; right:13px;}
-.card-sparkle{
-  position:absolute;
-  top:26px;
-  left:50%;
-  transform:translateX(-50%) translateZ(0);
-  width:14px;
-  height:14px;
-  color:var(--gold-bright);
-  filter:drop-shadow(0 0 6px rgba(212,179,255,.6));
-  animation:pulseGlow 4s ease-in-out infinite;
-}
 .tap-hint{
   position:absolute;
   bottom:22px;
