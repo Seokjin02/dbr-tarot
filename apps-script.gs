@@ -44,12 +44,15 @@ function doPost(e) {
     }
 
     // 같은 주에 여러 번 저장하면 같은 날짜 탭을 덮어씁니다.
-    // 날짜가 바뀌면 새 탭이 맨 앞에 생깁니다.
+    // 날짜가 바뀌면 새 탭이 생기는데, "누적통계"·"일별통계" 탭은 항상 맨 앞에 고정해두고
+    // 그 바로 다음 자리에 새 날짜 탭을 끼워 넣습니다.
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     let sheet = ss.getSheetByName(name);
     const created = !sheet;
     if (created) {
-      sheet = ss.insertSheet(name, 0);
+      const pinned = [STATS_SHEET_NAME, STATS_DAILY_SHEET_NAME]
+        .filter(function (n) { return !!ss.getSheetByName(n); }).length;
+      sheet = ss.insertSheet(name, pinned);
     }
 
     writeRows(sheet, rows);
