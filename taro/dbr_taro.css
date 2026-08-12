@@ -198,16 +198,19 @@ main{
 }
 
 .card-wrap{
+  -webkit-perspective:1800px;
   perspective:1800px;
 }
 .card{
   position:relative;
   width:100%;
   aspect-ratio:5/8;
+  -webkit-transform-style:preserve-3d;
   transform-style:preserve-3d;
   transition:transform .9s cubic-bezier(.22,.68,0,1.21);
   cursor:pointer;
   outline:none;
+  will-change:transform;
 }
 .card:focus-visible .face{
   box-shadow:0 0 0 3px var(--gold-bright), 0 18px 40px rgba(0,0,0,.55);
@@ -217,6 +220,7 @@ main{
 .face{
   position:absolute;
   inset:0;
+  -webkit-backface-visibility:hidden;
   backface-visibility:hidden;
   border-radius:14px;
   overflow:hidden;
@@ -728,6 +732,7 @@ header{
 .stage-card{
   position:fixed;
   z-index:61;
+  -webkit-perspective:1800px;
   perspective:1800px;
   transition:top 1.05s cubic-bezier(.22,.68,0,1.05),
              left 1.05s cubic-bezier(.22,.68,0,1.05),
