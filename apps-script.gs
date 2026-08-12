@@ -92,11 +92,12 @@ function doGet(e) {
 
 /**
  * 방문/클릭 카운터. counterapi.dev(무료 익명 카운터)가 v1을 종료하면서
- * 이 시트를 그대로 카운터 저장소로 씁니다. "_stats"라는 별도 탭에 키마다
+ * 이 시트를 그대로 카운터 저장소로 씁니다. "누적통계"라는 별도 탭에 키마다
  * 한 행을 두고, 요청이 올 때마다 그 행만 갱신합니다.
  * A열(key)은 코드가 찾아가는 내부용이라 숨겨져 있고, 나머지 열이 사람이 보는 값입니다.
  */
-const STATS_SHEET_NAME = '_stats';
+const STATS_SHEET_NAME = '누적통계';
+const STATS_SHEET_LEGACY_NAMES = ['_stats']; // 예전 이름. 있으면 데이터 유지한 채 새 이름으로 바꿉니다.
 const STATS_KEY_PATTERN = /^[a-z0-9]{1,30}$/;
 const STATS_TIMEZONE = 'Asia/Seoul';
 
@@ -126,6 +127,14 @@ function statsWeekKey(date) {
 function getStatsSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sheet = ss.getSheetByName(STATS_SHEET_NAME);
+
+  if (!sheet) {
+    for (let i = 0; i < STATS_SHEET_LEGACY_NAMES.length; i++) {
+      const legacy = ss.getSheetByName(STATS_SHEET_LEGACY_NAMES[i]);
+      if (legacy) { legacy.setName(STATS_SHEET_NAME); sheet = legacy; break; }
+    }
+  }
+
   const needsInit = !sheet || String(sheet.getRange(1, STATS_COL.LABEL).getValue()) !== '항목';
 
   if (!sheet) {
@@ -193,7 +202,8 @@ function statsIncrement(key) {
 }
 
 // 날짜별 집계. "_stats_daily" 탭에 날짜(행) x 항목(열) 표로 쌓입니다.
-const STATS_DAILY_SHEET_NAME = '_stats_daily';
+const STATS_DAILY_SHEET_NAME = '일별통계';
+const STATS_DAILY_SHEET_LEGACY_NAMES = ['_stats_daily']; // 예전 이름. 있으면 데이터 유지한 채 새 이름으로 바꿉니다.
 
 function statsDailyDateString(value) {
   if (value instanceof Date) {
@@ -213,6 +223,14 @@ function statsTodayDate() {
 function getStatsDailySheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sheet = ss.getSheetByName(STATS_DAILY_SHEET_NAME);
+
+  if (!sheet) {
+    for (let i = 0; i < STATS_DAILY_SHEET_LEGACY_NAMES.length; i++) {
+      const legacy = ss.getSheetByName(STATS_DAILY_SHEET_LEGACY_NAMES[i]);
+      if (legacy) { legacy.setName(STATS_DAILY_SHEET_NAME); sheet = legacy; break; }
+    }
+  }
+
   const needsInit = !sheet || String(sheet.getRange(1, 1).getValue()) !== '날짜';
 
   if (!sheet) {
