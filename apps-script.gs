@@ -172,23 +172,95 @@ function statsIncrement(key) {
     if (rowIndex === -1) {
       // 미리 정의되지 않은 키는 맨 아래에 새로 추가합니다.
       sheet.appendRow([key, STATS_KEY_LABELS[key] || key, 1, 1, wk]);
-      return;
+    } else {
+      const rowNum = rowIndex + 2;
+      const total = (Number(data[rowIndex][STATS_COL.TOTAL - 1]) || 0) + 1;
+      let weekKey = data[rowIndex][STATS_COL.WEEKKEY - 1];
+      let weekCount = Number(data[rowIndex][STATS_COL.WEEK - 1]) || 0;
+      if (weekKey === wk) {
+        weekCount += 1;
+      } else {
+        weekKey = wk;
+        weekCount = 1;
+      }
+      sheet.getRange(rowNum, STATS_COL.WEEK, 1, 3).setValues([[weekCount, total, weekKey]]);
     }
 
-    const rowNum = rowIndex + 2;
-    const total = (Number(data[rowIndex][STATS_COL.TOTAL - 1]) || 0) + 1;
-    let weekKey = data[rowIndex][STATS_COL.WEEKKEY - 1];
-    let weekCount = Number(data[rowIndex][STATS_COL.WEEK - 1]) || 0;
-    if (weekKey === wk) {
-      weekCount += 1;
-    } else {
-      weekKey = wk;
-      weekCount = 1;
-    }
-    sheet.getRange(rowNum, STATS_COL.WEEK, 1, 3).setValues([[weekCount, total, weekKey]]);
+    statsDailyIncrement(key);
   } finally {
     lock.releaseLock();
   }
+}
+
+// 날짜별 집계. "_stats_daily" 탭에 날짜(행) x 항목(열) 표로 쌓입니다.
+const STATS_DAILY_SHEET_NAME = '_stats_daily';
+
+function statsDailyDateString(value) {
+  if (value instanceof Date) {
+    return Utilities.formatDate(value, STATS_TIMEZONE, 'yyyy-MM-dd');
+  }
+  return String(value || '');
+}
+
+// 오늘 자정(한국 시간) 기준 Date 객체. 문자열 대신 실제 날짜 타입으로 저장해야
+// 시트에서 정렬·필터가 자연스럽게 됩니다.
+function statsTodayDate() {
+  const formatted = Utilities.formatDate(new Date(), STATS_TIMEZONE, 'yyyy-MM-dd');
+  const parts = formatted.split('-');
+  return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+}
+
+function getStatsDailySheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(STATS_DAILY_SHEET_NAME);
+  const needsInit = !sheet || String(sheet.getRange(1, 1).getValue()) !== '날짜';
+
+  if (!sheet) {
+    sheet = ss.insertSheet(STATS_DAILY_SHEET_NAME);
+  }
+
+  if (needsInit) {
+    sheet.clear();
+    const header = ['날짜'].concat(STATS_KEY_ORDER.map(function (key) {
+      return STATS_KEY_LABELS[key] || key;
+    }));
+    sheet.getRange(1, 1, 1, header.length).setValues([header]);
+    sheet.getRange(1, 1, 1, header.length).setFontWeight('bold').setBackground('#efe7d4');
+    sheet.setFrozenRows(1);
+    sheet.setFrozenColumns(1);
+    sheet.setColumnWidth(1, 100);
+    sheet.getRange('A2:A').setNumberFormat('yyyy-mm-dd');
+  }
+
+  return sheet;
+}
+
+function statsDailyIncrement(key) {
+  const colIndex = STATS_KEY_ORDER.indexOf(key);
+  if (colIndex === -1) return; // 미리 정의된 7개 항목이 아니면 날짜별 표는 건너뜁니다.
+
+  const sheet = getStatsDailySheet();
+  const today = statsTodayDate();
+  const todayStr = statsDailyDateString(today);
+  const col = colIndex + 2; // A열(날짜) 다음부터 STATS_KEY_ORDER 순서
+
+  const lastRow = sheet.getLastRow();
+  let rowNum = -1;
+  if (lastRow > 1) {
+    const dates = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (let i = 0; i < dates.length; i++) {
+      if (statsDailyDateString(dates[i][0]) === todayStr) { rowNum = i + 2; break; }
+    }
+  }
+
+  if (rowNum === -1) {
+    const newRow = [today].concat(STATS_KEY_ORDER.map(function () { return 0; }));
+    sheet.appendRow(newRow);
+    rowNum = sheet.getLastRow();
+  }
+
+  const cell = sheet.getRange(rowNum, col);
+  cell.setValue((Number(cell.getValue()) || 0) + 1);
 }
 
 // 관리자 페이지가 한 번에 모든 키의 이번 주/누적 값을 읽어갑니다.
