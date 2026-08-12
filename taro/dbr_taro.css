@@ -269,6 +269,8 @@ main{
   color:var(--gold);
   opacity:.92;
   filter:drop-shadow(0 0 10px rgba(163,116,217,.35));
+  -webkit-transform:translateZ(0);
+  transform:translateZ(0);
 }
 .face-front .sigil-img{
   width:62%;
@@ -277,6 +279,8 @@ main{
   border-radius:50%;
   border:1px solid rgba(163,116,217,.5);
   filter:drop-shadow(0 0 14px rgba(163,116,217,.3));
+  -webkit-transform:translateZ(0);
+  transform:translateZ(0);
 }
 /* 네 모서리의 작은 원 (레퍼런스의 코너 장식) */
 .corner{
@@ -298,7 +302,7 @@ main{
   position:absolute;
   top:26px;
   left:50%;
-  transform:translateX(-50%);
+  transform:translateX(-50%) translateZ(0);
   width:14px;
   height:14px;
   color:var(--gold-bright);
