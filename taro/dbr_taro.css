@@ -38,7 +38,10 @@ body{
   font-family:'Noto Serif KR', serif;
   position:relative;
   overflow-x:hidden;
-
+  /* 한글이 글자 단위로 쪼개지지 않고 어절(띄어쓰기) 단위로만 줄바꿈되게 합니다. */
+  word-break:keep-all;
+  /* 띄어쓰기 없는 긴 문자열(URL 등)이 화면 밖으로 넘칠 때만 예외적으로 끊습니다. */
+  overflow-wrap:break-word;
 }
 
 /* twinkling stars */
@@ -154,6 +157,8 @@ h1{
   color:#fff;
   /* 글자는 흰색이되 번지는 빛은 장밋빛으로 남겨 테마와 어울리게 합니다. */
   text-shadow:0 0 26px rgba(212,179,255,.34);
+  /* 제목이 두 줄 이상이 될 때 줄 길이를 고르게 맞춥니다. */
+  text-wrap:balance;
 }
 .lede{
   color:var(--lede);
@@ -161,6 +166,8 @@ h1{
   font-size:18px;
   max-width:520px;
   margin:0 auto 8px;
+  /* 본문도 줄 길이를 고르게 맞춰 마지막 줄만 짧게 남는 것을 줄입니다. */
+  text-wrap:balance;
 }
 .lede strong{color:var(--ink);font-weight:500;}
 .instruction{
@@ -492,7 +499,8 @@ h1{
 }
 
 .lede{
-  max-width:720px;
+  /* 한 줄이 한글 30자 안팎이 되도록 좁혀 노트북에서도 줄이 고르게 나뉩니다. */
+  max-width:640px;
   font-size:clamp(16px, 2.1vh, 20px);
   line-height:1.55;
   margin-bottom:2px;
