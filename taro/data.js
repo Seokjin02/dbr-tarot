@@ -356,7 +356,7 @@ async function tarotLoadFromSheet() {
     return { ok: false, skipped: true, error: 'data.js의 TAROT_SHEET_WEBAPP_URL이 비어 있습니다.' };
   }
   try {
-    const res = await tarotJsonp(TAROT_SHEET_WEBAPP_URL, 8000);
+    const res = await tarotJsonp(TAROT_SHEET_WEBAPP_URL, 25000);
     if (!res || !res.ok) {
       return { ok: false, error: (res && res.error) || '시트를 읽지 못했습니다.' };
     }
@@ -393,7 +393,7 @@ async function tarotGetStats() {
     + (TAROT_SHEET_WEBAPP_URL.indexOf('?') === -1 ? '?' : '&')
     + 'action=stats';
   try {
-    const res = await tarotJsonp(url, 8000);
+    const res = await tarotJsonp(url, 25000);
     if (!res || !res.ok) return { ok: false, error: (res && res.error) || '통계를 읽지 못했습니다.' };
     return res;
   } catch (err) {
