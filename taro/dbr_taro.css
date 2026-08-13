@@ -418,10 +418,10 @@ footer{
 }
 .footer-link{
   display:inline-flex;
-  width:42px;
-  height:42px;
+  width:34px;
+  height:34px;
   transition:transform .2s ease, opacity .2s ease, box-shadow .2s ease;
-  border-radius:12px;
+  border-radius:10px;
 }
 .footer-link svg{
   width:100%;
@@ -432,7 +432,7 @@ footer{
   box-shadow:0 8px 20px rgba(0,0,0,.35);
 }
 .footer-link.is-disabled{
-  opacity:.35;
+  opacity:.55;
   pointer-events:none;
   cursor:default;
 }
@@ -586,6 +586,15 @@ footer{
   padding:5px 24px 10px;
   font-size:16px;
 }
+
+.footer-link{
+  width:28px;
+  height:28px;
+  border-radius:8px;
+}
+.footer-links{
+  gap:14px;
+}
 }
 
 /* 화면 높이가 낮은 노트북용 추가 압축 */
@@ -638,6 +647,18 @@ header{
 .dbr-link{
   margin-top:5px;
   padding:6px 9px;
+}
+
+footer{
+  padding:4px 24px 6px;
+}
+
+.footer-link{
+  width:24px;
+  height:24px;
+}
+.footer-links{
+  gap:12px;
 }
 }
 
