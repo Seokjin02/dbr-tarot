@@ -351,14 +351,13 @@
     if (!stageCard) return;
 
     const clone = stageCard;
+    const cloneCard = clone.querySelector('.card');
     const wrap = sourceWrap;
     const rect = wrap.getBoundingClientRect();
 
     backdrop.classList.remove('active');
     closeBtn.classList.remove('active');
-    // 뒷면 그대로 둔 채 서서히 사라지게 합니다.
-    // (앞면으로 다시 뒤집으면 사파리에서 3D 회전 중 아이콘이 잠깐 번쩍이는 문제가 있었습니다.)
-    clone.classList.add('stage-card-closing');
+    cloneCard.classList.remove('stage-flip');
 
     clone.style.top = rect.top + 'px';
     clone.style.left = rect.left + 'px';
