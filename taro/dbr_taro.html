@@ -71,7 +71,6 @@
             안정된 관성에 기대지 말고, 집요한 호기심으로 백지 위에 새로운
             질문을 던지며 AI 시대에도 흔들림 없는 나만의 서사를 완성해 보세요.
           </div>
-          <div class="back-bg-fill"></div>
           <a class="dbr-link" href="https://dbr.donga.com/article/view/1201/article_no/12146" target="_blank" rel="noopener noreferrer">DBR 아티클 읽기 →</a>
         </div>
       </div>
@@ -112,7 +111,6 @@
             위기의 순간, 겉보기에 화려한 전략보다 내면의 진정성과 책임감으로
             하반기 조직을 든든하게 이끌어갈 진짜 리더의 품격을 증명해 보세요.
           </div>
-          <div class="back-bg-fill"></div>
           <a class="dbr-link" href="https://dbr.donga.com/article/view/1306/article_no/12155" target="_blank" rel="noopener noreferrer">DBR 아티클 읽기 →</a>
         </div>
       </div>
@@ -157,7 +155,6 @@
             크고 막연한 한탕을 노리기보다, 더 작고 더 싸게 제품을 다듬어 온
             우리만의 단단한 기술력으로 하반기 시장에 확실한 돌파구를 뚫어보세요.
           </div>
-          <div class="back-bg-fill"></div>
           <a class="dbr-link" href="https://dbr.donga.com/article/view/1904/article_no/12134" target="_blank" rel="noopener noreferrer">DBR 아티클 읽기 →</a>
         </div>
       </div>
@@ -213,31 +210,11 @@
 
       const front = cardEl.querySelector('.face-front');
       const sigilSvg = front.querySelector('svg.sigil');
-      let sigilImg = front.querySelector('img.sigil-img');
       const categoryIcon = tarotCategoryIcon(card.category);
       if (categoryIcon) sigilSvg.innerHTML = categoryIcon;
-      if (card.frontImage) {
-        if (!sigilImg) {
-          sigilImg = document.createElement('img');
-          sigilImg.className = 'sigil-img';
-          front.insertBefore(sigilImg, sigilSvg);
-        }
-        sigilImg.src = card.frontImage;
-        sigilImg.style.display = '';
-        sigilSvg.style.display = 'none';
-      } else {
-        if (sigilImg) sigilImg.style.display = 'none';
-        sigilSvg.style.display = '';
-      }
 
       const back = cardEl.querySelector('.face-back');
-      back.classList.toggle('has-bg-image', !!card.backBgImage);
-      if (card.backBgImage) {
-        back.style.background = '#0d0710';
-        back.querySelector('.back-bg-fill').style.backgroundImage = 'url(' + JSON.stringify(card.backBgImage) + ')';
-      } else {
-        back.style.background = 'linear-gradient(165deg, ' + card.color + ', #180b13 65%)';
-      }
+      back.style.background = 'linear-gradient(165deg, ' + card.color + ', #180b13 65%)';
       back.querySelector('.card-numeral').textContent = card.numeral;
       back.querySelector('.card-cat').textContent = card.category;
       back.querySelector('.card-title').textContent = card.title;

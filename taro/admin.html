@@ -259,24 +259,6 @@
           '<span class="color-preview-label">' + escapeAttr(card.title) + '</span>' +
         '</div>' +
 
-        '<label>앞면 이미지 (뒤집기 전 아이콘 자리에 표시됩니다)</label>' +
-        '<div class="image-field">' +
-          '<div class="image-preview f-front-preview"' + (card.frontImage ? ' style="background-image:url(\'' + card.frontImage + '\')"' : '') + '></div>' +
-          '<div class="image-field-actions">' +
-            '<input type="file" accept="image/*" class="f-front-input" />' +
-            '<button type="button" class="btn-ghost f-front-clear">이미지 제거</button>' +
-          '</div>' +
-        '</div>' +
-
-        '<label>뒷면 배경 이미지 (카드 뒤집었을 때 전체 배경으로 쓰입니다. 안 넣으면 기존 색상 그라데이션 사용)</label>' +
-        '<div class="image-field">' +
-          '<div class="image-preview f-back-bg-preview"' + (card.backBgImage ? ' style="background-image:url(\'' + card.backBgImage + '\')"' : '') + '></div>' +
-          '<div class="image-field-actions">' +
-            '<input type="file" accept="image/*" class="f-back-bg-input" />' +
-            '<button type="button" class="btn-ghost f-back-bg-clear">이미지 제거</button>' +
-          '</div>' +
-        '</div>' +
-
         '<div class="editor-footer">' +
           '<button type="button" class="btn-gold f-save">저장</button>' +
           '<span class="save-status"></span>' +
@@ -323,35 +305,6 @@
         if (normalized) colorCode.value = normalized;
       });
 
-      let pendingFrontImage = card.frontImage || '';
-      let pendingBackBgImage = card.backBgImage || '';
-
-      function wireImageField(inputSelector, previewSelector, clearSelector, onChange) {
-        const input = box.querySelector(inputSelector);
-        const preview = box.querySelector(previewSelector);
-        const clearBtn = box.querySelector(clearSelector);
-
-        input.addEventListener('change', () => {
-          const file = input.files[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = () => {
-            onChange(reader.result);
-            preview.style.backgroundImage = 'url(\'' + reader.result + '\')';
-          };
-          reader.readAsDataURL(file);
-        });
-
-        clearBtn.addEventListener('click', () => {
-          onChange('');
-          preview.style.backgroundImage = 'none';
-          input.value = '';
-        });
-      }
-
-      wireImageField('.f-front-input', '.f-front-preview', '.f-front-clear', (val) => { pendingFrontImage = val; });
-      wireImageField('.f-back-bg-input', '.f-back-bg-preview', '.f-back-bg-clear', (val) => { pendingBackBgImage = val; });
-
       const status = box.querySelector('.save-status');
       box.querySelector('.f-save').addEventListener('click', () => {
         const allCards = tarotGetCards();
@@ -364,8 +317,6 @@
           body: plainTextToHtml(box.querySelector('.f-body').value),
           dbrLink: box.querySelector('.f-dbr').value.trim(),
           color: colorInput.value,
-          frontImage: pendingFrontImage,
-          backBgImage: pendingBackBgImage,
         };
         try {
           tarotSaveCards(allCards);
@@ -373,7 +324,7 @@
           setTimeout(() => { status.textContent = ''; }, 8000);
         } catch (err) {
           status.style.color = '#c0392b';
-          status.textContent = '저장 실패: 이미지 용량이 너무 클 수 있어요 (브라우저 저장 공간 초과).';
+          status.textContent = '저장 실패: 브라우저 저장 공간이 부족할 수 있어요.';
           setTimeout(() => { status.textContent = ''; }, 8000);
         }
       });

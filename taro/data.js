@@ -54,8 +54,6 @@ const TAROT_DEFAULT_CARDS = [
       '안정된 관성에 기대지 말고, 집요한 호기심으로 백지 위에 새로운 질문을 던지며 AI 시대에도 흔들림 없는 나만의 서사를 완성해 보세요.',
     dbrLink: 'https://dbr.donga.com/article/view/1201/article_no/12146',
     color: '#5c2a63',
-    frontImage: '',
-    backBgImage: '',
   },
   {
     id: 2,
@@ -72,8 +70,6 @@ const TAROT_DEFAULT_CARDS = [
       '위기의 순간, 겉보기에 화려한 전략보다 내면의 진정성과 책임감으로 하반기 조직을 든든하게 이끌어갈 진짜 리더의 품격을 증명해 보세요.',
     dbrLink: 'https://dbr.donga.com/article/view/1306/article_no/12155',
     color: '#1f3a52',
-    frontImage: '',
-    backBgImage: '',
   },
   {
     id: 3,
@@ -89,8 +85,6 @@ const TAROT_DEFAULT_CARDS = [
       '크고 막연한 한탕을 노리기보다, 더 작고 더 싸게 제품을 다듬어 온 우리만의 단단한 기술력으로 하반기 시장에 확실한 돌파구를 뚫어보세요.',
     dbrLink: 'https://dbr.donga.com/article/view/1904/article_no/12134',
     color: '#5a3a1d',
-    frontImage: '',
-    backBgImage: '',
   },
 ];
 
@@ -100,10 +94,9 @@ function tarotGetCards() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length === 3) {
-        // 이미지 필드가 추가되기 전에 저장된 데이터도 깨지지 않도록 기본값을 채워줍니다.
         return parsed.map((card) => {
           const fallback = TAROT_DEFAULT_CARDS.find((d) => d.id === card.id) || {};
-          return { frontImage: '', backBgImage: '', ...fallback, ...card };
+          return { ...fallback, ...card };
         });
       }
     }
@@ -215,14 +208,6 @@ function tarotHtmlToText(html) {
   return div.textContent || '';
 }
 
-// 이미지는 base64라 시트 셀 용량(5만 자)을 넘기기 쉬워 설정 여부만 남깁니다.
-function tarotImageNote(card) {
-  const parts = [];
-  if (card.frontImage) parts.push('앞면 있음');
-  if (card.backBgImage) parts.push('뒷면 배경 있음');
-  return parts.length ? parts.join(', ') : '없음';
-}
-
 // 기존 시트 탭들과 같은 key 이름을 씁니다.
 function tarotBuildSheetRows(site, cards) {
   const rows = [
@@ -246,7 +231,6 @@ function tarotBuildSheetRows(site, cards) {
     rows.push(['card' + n + '_body', tarotHtmlToText(card.body), n + '번 카드 본문 (빈 줄=문단 나눔)']);
     rows.push(['card' + n + '_link', card.dbrLink || '', n + '번 카드 DBR 아티클 링크']);
     rows.push(['card' + n + '_color', card.color || '', n + '번 카드 색상']);
-    rows.push(['card' + n + '_image', tarotImageNote(card), n + '번 카드 이미지 (이미지 파일 자체는 시트에 저장되지 않습니다)']);
   });
 
   return rows;

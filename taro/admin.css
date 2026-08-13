@@ -316,32 +316,6 @@ body{
   min-height:1em;
 }
 
-.image-field{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  flex-wrap:wrap;
-}
-.image-preview{
-  width:64px;
-  height:64px;
-  border-radius:10px;
-  border:1px solid #c9ccd3;
-  background:#f0f1f4 center/cover no-repeat;
-  flex-shrink:0;
-}
-.image-field-actions{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
-}
-.image-field-actions input[type="file"]{
-  color:#4a4a4a;
-  font-size:.86rem;
-  max-width:200px;
-}
-
 .editor-footer{
   display:flex;
   align-items:center;
