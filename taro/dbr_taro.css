@@ -418,8 +418,8 @@ footer{
 }
 .footer-link{
   display:inline-flex;
-  width:34px;
-  height:34px;
+  width:38px;
+  height:38px;
   transition:transform .2s ease, opacity .2s ease, box-shadow .2s ease;
   border-radius:10px;
 }
@@ -588,9 +588,9 @@ footer{
 }
 
 .footer-link{
-  width:28px;
-  height:28px;
-  border-radius:8px;
+  width:32px;
+  height:32px;
+  border-radius:9px;
 }
 .footer-links{
   gap:14px;
@@ -654,8 +654,8 @@ footer{
 }
 
 .footer-link{
-  width:24px;
-  height:24px;
+  width:28px;
+  height:28px;
 }
 .footer-links{
   gap:12px;
