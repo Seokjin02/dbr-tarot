@@ -173,7 +173,7 @@ const TAROT_SHEET_CONFIG_KEY = 'dbrTarotSheetSync.v1';
 // 관리자 페이지에서 아직 수정할 수 없는 항목들입니다.
 // dbr_taro.html에 하드코딩된 현재 값을 그대로 시트에 남깁니다.
 const TAROT_SHEET_STATIC = {
-  pageTitle: 'DBR 비즈니스 타로 · 7월 1주 차',
+  pageTitle: 'DBR 비즈니스 타로',
   instruction: '✦ 카드를 클릭하면 뒤집힙니다 ✦',
   footer: '✦ DBR 비즈니스 타로 · 카드를 뒤집어 하반기 인사이트를 확인하세요 ✦',
 };
