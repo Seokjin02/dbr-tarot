@@ -322,10 +322,10 @@ function tarotJsonp(url, timeoutMs) {
 // 시트에 없는 항목(이미지, 숫자 기호 등)은 기존 값을 그대로 둡니다.
 function tarotApplySheetData(map) {
   const site = { ...tarotGetSite() };
-  if (map.h1) site.title = map.h1;
-  if (map.lede1) site.lede1 = map.lede1;
-  if (map.lede2) site.lede2 = map.lede2;
-  if (map.instruction_sub) site.instructionSub = map.instruction_sub;
+  if (map.h1 !== undefined) site.title = map.h1;
+  if (map.lede1 !== undefined) site.lede1 = map.lede1;
+  if (map.lede2 !== undefined) site.lede2 = map.lede2;
+  if (map.instruction_sub !== undefined) site.instructionSub = map.instruction_sub;
   if (map.instagram_url !== undefined) site.instagramUrl = map.instagram_url;
   if (map.openchat_url !== undefined) site.openChatUrl = map.openchat_url;
   tarotSaveSite(site);
