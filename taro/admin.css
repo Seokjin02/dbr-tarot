@@ -48,13 +48,13 @@ body{
 
 /* ---------- 로그인 화면 ---------- */
 .login-box{
-  max-width:360px;
-  margin:100px auto;
+  max-width:340px;
+  margin:64px auto;
   background:#fff;
   border:1px solid #dcdee3;
   border-top:3px solid #e88bb0;
   border-radius:16px;
-  padding:36px;
+  padding:28px 28px 24px;
   text-align:center;
   box-shadow:0 6px 24px rgba(20,24,35,.08);
 }
@@ -62,7 +62,7 @@ body{
   font-family:'Song Myung', serif;
   font-size:24px;
   color:#1a1a1a;
-  margin:0 0 22px;
+  margin:0 0 18px;
 }
 .login-box input[type="password"]{
   width:100%;
@@ -72,22 +72,29 @@ body{
   background:#fff;
   color:#1a1a1a;
   font-size:1.05rem;
-  margin-bottom:12px;
+  margin-bottom:0;
 }
 .login-box input[type="password"]:focus{
   outline:none;
   border-color:#b0396e;
   box-shadow:0 0 0 3px rgba(232,139,176,.28);
 }
+/* 안내문은 평소 비어 있습니다. p의 브라우저 기본 여백을 지우고 자리만 조금 잡아둡니다.
+   (지우지 않으면 입력칸과 버튼 사이가 불필요하게 벌어집니다) */
 .login-error{
   color:#c0392b;
   font-size:.9rem;
   min-height:1.2em;
-  margin-bottom:8px;
+  margin:8px 0 12px;
+}
+/* 두 버튼은 높이가 서로 달라 기본(베이스라인) 정렬이면 어긋납니다. */
+.login-box .btn-gold,
+.login-box .login-back{
+  vertical-align:middle;
 }
 .login-back{
   display:inline-block;
-  margin-top:14px;
+  margin-top:0;
 }
 
 /* ---------- 상단 헤더 ---------- */
