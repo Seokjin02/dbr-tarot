@@ -29,6 +29,11 @@ function doPost(e) {
 
     const body = JSON.parse(e.postData.contents);
 
+    // 비밀번호 변경은 시트 기록과 전혀 다른 일이라 먼저 갈라냅니다.
+    if (String(body.action || '') === 'setpw') {
+      return jsonOut(adminChangePassword(body));
+    }
+
     if (String(body.token || '') !== SHEET_SYNC_TOKEN) {
       return jsonOut({ ok: false, error: '토큰이 일치하지 않습니다.' });
     }
@@ -86,6 +91,11 @@ function doGet(e) {
     }
     if (action === 'stats') {
       return respond(Object.assign({ ok: true }, statsRead()), callback);
+    }
+    if (action === 'login') {
+      // 비밀번호 원문은 오지 않습니다. 브라우저가 해시한 값만 받아 대조합니다.
+      const given = String((e.parameter && e.parameter.h) || '');
+      return respond({ ok: true, action: 'login', match: adminCheckHash(given) }, callback);
     }
     return respond(readLatest(), callback);
   } catch (err) {
@@ -385,6 +395,76 @@ function rowsToMap(values) {
   });
 
   return map;
+}
+
+/**
+ * 관리자 비밀번호.
+ *
+ * 브라우저(localStorage)에 두면 바꿔도 그 컴퓨터에만 적용돼서, 여기 시트에 보관합니다.
+ * 이렇게 하면 누가 바꾸든 모든 사람에게 똑같이 적용됩니다.
+ *
+ * 비밀번호 원문은 브라우저 밖으로 나오지 않습니다.
+ *   브라우저: 해시A = SHA256(비밀번호 + 소금)  ← 이 값만 전송
+ *   시트    : 해시B = SHA256(해시A)            ← 이 값만 저장
+ * 그래서 시트를 들여다봐도 비밀번호를 알 수 없고, 시트 값을 그대로 흉내 내도 로그인되지 않습니다.
+ *
+ * 비밀번호를 잊었다면 "관리자설정" 탭의 B2 칸을 비우세요. 기본값(1234)으로 돌아갑니다.
+ */
+const ADMIN_SHEET_NAME = '관리자설정';
+const ADMIN_PW_LABEL = '관리자 비밀번호 (해시 · 직접 수정하지 마세요)';
+// ⚠️ data.js의 TAROT_PASSWORD_SALT와 반드시 같아야 합니다.
+const ADMIN_PW_SALT = 'dbr-tarot-admin';
+const ADMIN_DEFAULT_PASSWORD = '1234';
+
+function sha256Hex(text) {
+  const bytes = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256, String(text), Utilities.Charset.UTF_8);
+  return bytes.map(function (b) {
+    return ('0' + (b & 0xff).toString(16)).slice(-2);
+  }).join('');
+}
+
+function getAdminSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(ADMIN_SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(ADMIN_SHEET_NAME, 0);
+    sheet.getRange(1, 1, 1, 2).setValues([['항목', '값']]).setFontWeight('bold');
+    sheet.getRange(2, 1).setValue(ADMIN_PW_LABEL);
+    sheet.setColumnWidth(1, 280);
+    sheet.setColumnWidth(2, 460);
+  }
+  return sheet;
+}
+
+// 저장된 값이 없으면 기본 비밀번호를 쓴 것으로 봅니다. 새 시트에서도 잠기지 않도록.
+function adminStoredHash() {
+  const saved = String(getAdminSheet().getRange(2, 2).getValue() || '').trim().toLowerCase();
+  if (/^[a-f0-9]{64}$/.test(saved)) return saved;
+  return sha256Hex(sha256Hex(ADMIN_DEFAULT_PASSWORD + ADMIN_PW_SALT));
+}
+
+function adminCheckHash(clientHash) {
+  const given = String(clientHash || '').trim().toLowerCase();
+  if (!/^[a-f0-9]{64}$/.test(given)) return false;
+  return sha256Hex(given) === adminStoredHash();
+}
+
+// 응답에는 항상 action:'setpw'를 넣습니다.
+// 예전 버전 Apps Script는 이 표시가 없으므로, 브라우저가 "아직 재배포 안 됨"을 구분할 수 있습니다.
+function adminChangePassword(body) {
+  if (String(body.token || '') !== SHEET_SYNC_TOKEN) {
+    return { ok: false, action: 'setpw', error: '토큰이 일치하지 않습니다.' };
+  }
+  if (!adminCheckHash(body.currentHash)) {
+    return { ok: false, action: 'setpw', error: '현재 비밀번호가 올바르지 않습니다.' };
+  }
+  const next = String(body.nextHash || '').trim().toLowerCase();
+  if (!/^[a-f0-9]{64}$/.test(next)) {
+    return { ok: false, action: 'setpw', error: '새 비밀번호를 읽지 못했습니다.' };
+  }
+  getAdminSheet().getRange(2, 2).setValue(sha256Hex(next));
+  return { ok: true, action: 'setpw' };
 }
 
 function respond(obj, callback) {

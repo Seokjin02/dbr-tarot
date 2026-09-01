@@ -129,7 +129,9 @@
     </div>
 
     <div class="card-editor">
-      <div class="editor-heading">관리자 비밀번호 변경</div>
+      <div class="editor-heading">관리자 비밀번호 변경 <span class="cat-preview">(모든 사람에게 적용됩니다)</span></div>
+      <label>현재 비밀번호</label>
+      <input type="password" id="currentPassword" placeholder="현재 비밀번호" />
       <label>새 비밀번호</label>
       <input type="password" id="newPassword1" placeholder="새 비밀번호" />
       <label>새 비밀번호 확인</label>
@@ -150,6 +152,7 @@
   const loginBtn = document.getElementById('loginBtn');
   const resetBtn = document.getElementById('resetBtn');
   const editorList = document.getElementById('editorList');
+  const currentPassword = document.getElementById('currentPassword');
   const newPassword1 = document.getElementById('newPassword1');
   const newPassword2 = document.getElementById('newPassword2');
   const savePasswordBtn = document.getElementById('savePasswordBtn');
@@ -444,14 +447,33 @@
     if (e.key === 'Enter') doLogin();
   });
 
-  function doLogin(){
-    if (passwordInput.value === tarotGetPassword()) {
-      loginError.textContent = '';
-      passwordInput.value = '';
-      showEditor();
-    } else {
-      loginError.style.color = '';
-      loginError.textContent = '비밀번호가 올바르지 않습니다.';
+  let loginBusy = false;
+
+  async function doLogin(){
+    if (loginBusy) return;
+    loginBusy = true;
+    loginBtn.disabled = true;
+    loginError.style.color = '';
+    loginError.textContent = '확인 중...';
+
+    try {
+      const res = await tarotCheckPassword(passwordInput.value);
+      if (res.ok && res.match) {
+        loginError.textContent = '';
+        passwordInput.value = '';
+        // 예전 버전이 브라우저에 남겨둔 비밀번호는 이제 쓰지 않으므로 지웁니다.
+        try { localStorage.removeItem(TAROT_PASSWORD_KEY); } catch (err) { /* 무시 */ }
+        showEditor();
+      } else if (res.ok) {
+        loginError.textContent = '비밀번호가 올바르지 않습니다.';
+      } else if (res.needsRedeploy) {
+        loginError.textContent = res.error + ' 시트 관리자에게 Apps Script 재배포를 요청해 주세요.';
+      } else {
+        loginError.textContent = '확인에 실패했습니다: ' + res.error;
+      }
+    } finally {
+      loginBusy = false;
+      loginBtn.disabled = false;
     }
   }
 
@@ -464,25 +486,41 @@
     }
   });
 
-  savePasswordBtn.addEventListener('click', () => {
+  savePasswordBtn.addEventListener('click', async () => {
+    const now = currentPassword.value;
     const pw1 = newPassword1.value;
     const pw2 = newPassword2.value;
-    if (!pw1) {
+
+    function fail(message) {
       passwordStatus.style.color = '#c0392b';
-      passwordStatus.textContent = '새 비밀번호를 입력해주세요.';
-      return;
+      passwordStatus.textContent = message;
     }
-    if (pw1 !== pw2) {
-      passwordStatus.style.color = '#c0392b';
-      passwordStatus.textContent = '두 비밀번호가 서로 다릅니다.';
-      return;
-    }
-    tarotSavePassword(pw1);
-    newPassword1.value = '';
-    newPassword2.value = '';
+
+    if (!now) return fail('현재 비밀번호를 입력해주세요.');
+    if (!pw1) return fail('새 비밀번호를 입력해주세요.');
+    if (pw1 !== pw2) return fail('두 비밀번호가 서로 다릅니다.');
+
+    savePasswordBtn.disabled = true;
     passwordStatus.style.color = '';
-    passwordStatus.textContent = '비밀번호가 변경되었습니다.';
-    setTimeout(() => { passwordStatus.textContent = ''; }, 4000);
+    passwordStatus.textContent = '변경 중...';
+
+    try {
+      const res = await tarotChangePassword(now, pw1);
+      if (res.ok) {
+        currentPassword.value = '';
+        newPassword1.value = '';
+        newPassword2.value = '';
+        passwordStatus.style.color = '';
+        passwordStatus.textContent = '비밀번호가 변경되었습니다. 이제 모든 사람이 새 비밀번호로 들어옵니다.';
+        setTimeout(() => { passwordStatus.textContent = ''; }, 6000);
+      } else if (res.needsRedeploy) {
+        fail(res.error + ' 시트 관리자에게 Apps Script 재배포를 요청해 주세요.');
+      } else {
+        fail('변경 실패: ' + res.error);
+      }
+    } finally {
+      savePasswordBtn.disabled = false;
+    }
   });
 
   showLogin();

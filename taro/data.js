@@ -114,15 +114,91 @@ function tarotResetCards() {
   localStorage.removeItem(TAROT_STORAGE_KEY);
 }
 
-const TAROT_PASSWORD_KEY = 'dbrTarotAdminPassword.v1';
-const TAROT_DEFAULT_PASSWORD = '1234';
+// 관리자 비밀번호는 구글 시트에 보관합니다.
+// 예전에는 브라우저(localStorage)에 뒀는데, 그러면 비밀번호를 바꿔도 그 컴퓨터에만 적용되고
+// 다른 사람은 계속 기본값으로 들어올 수 있었습니다.
+//
+// 비밀번호 원문은 브라우저 밖으로 내보내지 않습니다. 아래 소금을 섞어 해시한 값만 주고받고,
+// 시트에는 그 값을 한 번 더 해시해서 저장합니다. (자세한 설명은 apps-script.gs 참고)
+const TAROT_PASSWORD_KEY = 'dbrTarotAdminPassword.v1'; // 예전에 쓰던 키. 남아 있으면 지웁니다.
+// ⚠️ apps-script.gs의 ADMIN_PW_SALT와 반드시 같아야 합니다.
+const TAROT_PASSWORD_SALT = 'dbr-tarot-admin';
 
-function tarotGetPassword() {
-  return localStorage.getItem(TAROT_PASSWORD_KEY) || TAROT_DEFAULT_PASSWORD;
+async function tarotHashPassword(password) {
+  const data = new TextEncoder().encode(String(password) + TAROT_PASSWORD_SALT);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
-function tarotSavePassword(newPassword) {
-  localStorage.setItem(TAROT_PASSWORD_KEY, newPassword);
+// 로그인 확인. { ok:true, match:true/false } 또는 { ok:false, error }를 돌려줍니다.
+// 읽기는 JSONP가 안정적이라 통계와 같은 방식을 씁니다.
+async function tarotCheckPassword(password) {
+  if (!TAROT_SHEET_WEBAPP_URL) {
+    return { ok: false, error: 'data.js의 TAROT_SHEET_WEBAPP_URL이 비어 있습니다.' };
+  }
+  let hash;
+  try {
+    hash = await tarotHashPassword(password);
+  } catch (err) {
+    return { ok: false, error: '이 브라우저에서는 비밀번호를 확인할 수 없습니다. (' + err.message + ')' };
+  }
+  const url = TAROT_SHEET_WEBAPP_URL
+    + (TAROT_SHEET_WEBAPP_URL.indexOf('?') === -1 ? '?' : '&')
+    + 'action=login&h=' + encodeURIComponent(hash);
+  try {
+    // 시트 응답이 느릴 때가 있어 다른 시트 호출과 같은 25초를 씁니다.
+    // 짧게 잡으면 비밀번호가 맞아도 시간 초과로 로그인에 실패합니다.
+    const res = await tarotJsonp(url, 25000);
+    // 옛 Apps Script는 action 표시 없이 카드 내용을 돌려줍니다.
+    // 그 응답에도 ok:true가 들어 있어서, 그것만 보고 통과시키면 아무 비밀번호나 뚫립니다.
+    if (!res || res.action !== 'login') {
+      return { ok: false, needsRedeploy: true, error: '구글 시트의 Apps Script가 아직 최신 버전이 아닙니다.' };
+    }
+    return { ok: true, match: res.match === true };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+// 비밀번호 변경. 현재 비밀번호와 시트 토큰이 모두 맞아야 바뀝니다.
+async function tarotChangePassword(currentPassword, nextPassword) {
+  const config = tarotGetSheetConfig();
+  if (!config.url) {
+    return { ok: false, error: 'data.js의 TAROT_SHEET_WEBAPP_URL이 비어 있습니다.' };
+  }
+  if (!config.token) {
+    return { ok: false, error: '아래 "구글 시트 연동"에 비밀 토큰을 먼저 입력해 주세요.' };
+  }
+
+  let currentHash;
+  let nextHash;
+  try {
+    currentHash = await tarotHashPassword(currentPassword);
+    nextHash = await tarotHashPassword(nextPassword);
+  } catch (err) {
+    return { ok: false, error: '이 브라우저에서는 비밀번호를 바꿀 수 없습니다. (' + err.message + ')' };
+  }
+
+  try {
+    const res = await fetch(config.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ token: config.token, action: 'setpw', currentHash, nextHash }),
+      redirect: 'follow',
+    });
+    if (!res.ok) {
+      return { ok: false, error: '서버 응답 오류 (HTTP ' + res.status + ')' };
+    }
+    const data = await res.json();
+    if (!data || data.action !== 'setpw') {
+      return { ok: false, needsRedeploy: true, error: '구글 시트의 Apps Script가 아직 최신 버전이 아닙니다.' };
+    }
+    return data;
+  } catch (err) {
+    return { ok: false, error: '시트에 연결하지 못했습니다. (' + err.message + ')' };
+  }
 }
 
 const TAROT_SITE_STORAGE_KEY = 'dbrTarotSite.v1';
